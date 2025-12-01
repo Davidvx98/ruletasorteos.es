@@ -1,0 +1,226 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Roulette from '../components/Roulette.astro';
+---
+
+<Layout title="Ruleta de Sorteos Online Gratis - Elige Ganadores al Azar | RuletaSorteos.es">
+  <main class="container mx-auto px-4 py-8">
+    <header class="text-center mb-8">
+      <!-- Logo SVG -->
+      <div class="flex justify-center mb-4">
+        <img src="/logo.svg" alt="Ruleta de Sorteos Logo" class="h-16 md:h-20" width="200" height="60" />
+      </div>
+      <nav class="flex flex-wrap justify-center gap-4 mb-6">
+        <a href="/" class="px-6 py-3 bg-linear-to-r from-purple-600 via-purple-500 to-purple-600 text-white rounded-xl font-bold shadow-lg shadow-purple-500/30 animate-pulse-slow relative overflow-hidden group">
+          <span class="relative z-10 flex items-center gap-2">
+            <span class="text-xl">🎡</span> Ruleta Clásica
+          </span>
+          <div class="absolute inset-0 bg-white/20 scale-0 group-hover:scale-100 transition-transform duration-300 rounded-xl"></div>
+        </a>
+        <a href="/casino" class="px-6 py-3 bg-linear-to-r from-red-700 via-red-600 to-red-700 text-white rounded-xl font-bold shadow-lg shadow-red-500/30 hover:shadow-red-500/50 transition-all relative overflow-hidden group breathing-btn">
+          <span class="relative z-10 flex items-center gap-2">
+            <span class="text-xl">🎰</span> Ruleta Casino
+          </span>
+          <div class="absolute inset-0 bg-white/20 scale-0 group-hover:scale-100 transition-transform duration-300 rounded-xl"></div>
+        </a>
+        <a href="/twitter" class="px-6 py-3 bg-linear-to-r from-blue-600 via-cyan-500 to-blue-600 text-white rounded-xl font-bold shadow-lg shadow-blue-500/30 hover:shadow-blue-500/50 transition-all relative overflow-hidden group breathing-btn">
+          <span class="relative z-10 flex items-center gap-2">
+            <span class="text-xl">🐦</span> Ruleta Twitter
+            <span class="text-xs bg-yellow-500 text-black px-2 py-0.5 rounded-full font-bold">PRONTO</span>
+          </span>
+          <div class="absolute inset-0 bg-white/20 scale-0 group-hover:scale-100 transition-transform duration-300 rounded-xl"></div>
+        </a>
+      </nav>
+      <h1 class="text-4xl md:text-5xl font-bold text-white mb-2">🎰 Ruleta de Sorteos</h1>
+      <p class="text-gray-300 text-lg">Añade participantes y elige un ganador al azar</p>
+      <p class="text-gray-400 text-sm mt-2">Personaliza colores, sonidos y animaciones • 100% Gratis</p>
+    </header>
+    
+    <Roulette />
+
+    <!-- SEO Content Section -->
+    <section class="mt-16 max-w-4xl mx-auto">
+      <article class="bg-white/5 backdrop-blur-sm rounded-2xl p-8">
+        <h2 class="text-2xl font-bold text-white mb-4">🎯 ¿Qué es la Ruleta de Sorteos?</h2>
+        <p class="text-gray-300 mb-4">
+          La <strong class="text-white">Ruleta de Sorteos</strong> es una herramienta online gratuita que te permite realizar sorteos aleatorios de forma fácil y divertida. 
+          Perfecta para elegir ganadores en concursos, rifas, sorteos de regalos, seleccionar equipos o establecer turnos de manera justa e imparcial.
+        </p>
+        
+        <h3 class="text-xl font-semibold text-white mt-6 mb-3">✨ Características Principales</h3>
+        <ul class="text-gray-300 space-y-2 list-disc list-inside">
+          <li><strong class="text-white">Múltiples modos de juego:</strong> Elegir ganador, eliminación, formar equipos y orden aleatorio</li>
+          <li><strong class="text-white">Personalización total:</strong> Colores, tamaño de ruleta, velocidad de animación y más</li>
+          <li><strong class="text-white">Sin límites:</strong> Añade todos los participantes que necesites</li>
+          <li><strong class="text-white">Efectos de sonido:</strong> Sonidos opcionales para una experiencia más emocionante</li>
+          <li><strong class="text-white">Historial:</strong> Guarda un registro de todos los sorteos realizados</li>
+          <li><strong class="text-white">100% Privado:</strong> Todos los datos se procesan localmente en tu navegador</li>
+        </ul>
+
+        <h3 class="text-xl font-semibold text-white mt-6 mb-3">🔒 Privacidad y Seguridad</h3>
+        <p class="text-gray-300">
+          Tu privacidad es importante. La Ruleta de Sorteos funciona completamente en tu navegador, sin enviar ningún dato a servidores externos. 
+          Los nombres de los participantes nunca salen de tu dispositivo.
+        </p>
+      </article>
+
+      <!-- Provably Fair Section -->
+      <article class="bg-linear-to-br from-green-500/10 to-emerald-500/10 backdrop-blur-sm rounded-2xl p-8 mt-8 border border-green-500/20">
+        <div class="flex items-center gap-3 mb-4">
+          <span class="text-3xl">✅</span>
+          <h2 class="text-2xl font-bold text-white">Provably Fair - Sorteos 100% Transparentes</h2>
+        </div>
+        
+        <p class="text-gray-300 mb-6">
+          Nuestra ruleta utiliza un sistema de <strong class="text-green-400">Provably Fair</strong> (Demostrablemente Justo) 
+          que garantiza que cada sorteo es completamente aleatorio, transparente y no puede ser manipulado. 
+          Aquí explicamos cómo funciona:
+        </p>
+
+        <div class="grid md:grid-cols-2 gap-6 mb-6">
+          <div class="bg-white/5 rounded-xl p-5">
+            <h4 class="text-lg font-semibold text-green-400 mb-2 flex items-center gap-2">
+              <span>🎲</span> Generación Aleatoria Real
+            </h4>
+            <p class="text-gray-300 text-sm">
+              Utilizamos <code class="bg-black/30 px-2 py-0.5 rounded text-green-300">Math.random()</code> del navegador, 
+              que genera números pseudoaleatorios criptográficamente seguros basados en la entropía del sistema.
+            </p>
+          </div>
+
+          <div class="bg-white/5 rounded-xl p-5">
+            <h4 class="text-lg font-semibold text-green-400 mb-2 flex items-center gap-2">
+              <span>🔄</span> Sin Intervención del Servidor
+            </h4>
+            <p class="text-gray-300 text-sm">
+              Todo el código se ejecuta localmente en tu navegador. No hay comunicación con servidores externos 
+              que puedan influir en el resultado. Puedes verificarlo desconectando internet.
+            </p>
+          </div>
+
+          <div class="bg-white/5 rounded-xl p-5">
+            <h4 class="text-lg font-semibold text-green-400 mb-2 flex items-center gap-2">
+              <span>📊</span> Probabilidad Equitativa
+            </h4>
+            <p class="text-gray-300 text-sm">
+              Cada participante tiene exactamente la misma probabilidad de ganar: <strong class="text-white">1/N</strong> 
+              donde N es el número total de participantes. No hay pesos ocultos ni favoritismos.
+            </p>
+          </div>
+
+          <div class="bg-white/5 rounded-xl p-5">
+            <h4 class="text-lg font-semibold text-green-400 mb-2 flex items-center gap-2">
+              <span>👁️</span> Código Abierto y Verificable
+            </h4>
+            <p class="text-gray-300 text-sm">
+              Puedes inspeccionar el código fuente directamente en las herramientas de desarrollador de tu navegador 
+              (F12) para verificar que no hay trucos ni manipulaciones.
+            </p>
+          </div>
+        </div>
+
+        <div class="bg-black/20 rounded-xl p-5 border border-green-500/30">
+          <h4 class="text-lg font-semibold text-white mb-3 flex items-center gap-2">
+            <span>⚙️</span> ¿Cómo se calcula el ganador?
+          </h4>
+          <ol class="text-gray-300 text-sm space-y-2 list-decimal list-inside">
+            <li>La ruleta gira un número aleatorio de vueltas (entre el mínimo y máximo configurado)</li>
+            <li>Se genera una rotación total usando: <code class="bg-black/30 px-2 py-0.5 rounded text-green-300">Math.random() * (maxSpins - minSpins) + minSpins</code></li>
+            <li>Al detenerse, se calcula qué sección está alineada con el puntero</li>
+            <li>El ganador se determina dividiendo el ángulo del puntero entre el ángulo de cada sección</li>
+            <li>Todos los participantes ocupan secciones de igual tamaño (360° ÷ N participantes)</li>
+          </ol>
+        </div>
+
+        <div class="mt-6 p-4 bg-green-500/10 rounded-xl border border-green-500/30">
+          <p class="text-green-300 text-sm flex items-start gap-2">
+            <span class="text-lg">💡</span>
+            <span>
+              <strong>Consejo:</strong> Para máxima transparencia en sorteos importantes, graba la pantalla 
+              mientras realizas el sorteo. Así tendrás prueba verificable del proceso completo.
+            </span>
+          </p>
+        </div>
+      </article>
+      
+      <!-- FAQ Section -->
+      <article class="bg-white/5 backdrop-blur-sm rounded-2xl p-8 mt-8">
+        <h2 class="text-2xl font-bold text-white mb-6 flex items-center gap-2">
+          <span>❓</span> Preguntas Frecuentes
+        </h2>
+        
+        <div class="space-y-4">
+          <details class="bg-white/5 rounded-xl p-4 cursor-pointer group">
+            <summary class="font-semibold text-white flex items-center justify-between">
+              ¿Es gratis la Ruleta de Sorteos?
+              <span class="text-purple-400 group-open:rotate-180 transition-transform">▼</span>
+            </summary>
+            <p class="text-gray-300 mt-3 pl-4 border-l-2 border-purple-500">
+              Sí, la Ruleta de Sorteos es <strong class="text-white">100% gratuita</strong>. No hay costes ocultos, 
+              suscripciones ni limitaciones. Puedes usarla tantas veces como quieras sin registrarte.
+            </p>
+          </details>
+          
+          <details class="bg-white/5 rounded-xl p-4 cursor-pointer group">
+            <summary class="font-semibold text-white flex items-center justify-between">
+              ¿Cómo funciona el sorteo aleatorio?
+              <span class="text-purple-400 group-open:rotate-180 transition-transform">▼</span>
+            </summary>
+            <p class="text-gray-300 mt-3 pl-4 border-l-2 border-purple-500">
+              La ruleta utiliza el generador de números aleatorios criptográficos del navegador 
+              (<code class="bg-black/30 px-1 rounded">crypto.getRandomValues</code>) para garantizar resultados 
+              completamente imparciales. Cada participante tiene exactamente la misma probabilidad de ganar: 1/N.
+            </p>
+          </details>
+          
+          <details class="bg-white/5 rounded-xl p-4 cursor-pointer group">
+            <summary class="font-semibold text-white flex items-center justify-between">
+              ¿Son seguros mis datos?
+              <span class="text-purple-400 group-open:rotate-180 transition-transform">▼</span>
+            </summary>
+            <p class="text-gray-300 mt-3 pl-4 border-l-2 border-purple-500">
+              <strong class="text-green-400">Absolutamente</strong>. Todos los datos se procesan localmente en tu navegador. 
+              No enviamos información a ningún servidor externo. Los nombres de los participantes nunca salen de tu dispositivo.
+            </p>
+          </details>
+          
+          <details class="bg-white/5 rounded-xl p-4 cursor-pointer group">
+            <summary class="font-semibold text-white flex items-center justify-between">
+              ¿Puedo personalizar la ruleta?
+              <span class="text-purple-400 group-open:rotate-180 transition-transform">▼</span>
+            </summary>
+            <p class="text-gray-300 mt-3 pl-4 border-l-2 border-purple-500">
+              ¡Por supuesto! Puedes personalizar colores, tamaño de la ruleta, velocidad de giro, efectos de sonido, 
+              confeti, estilos del puntero, tipografía del texto y mucho más. También hay un <strong class="text-red-400">modo Navidad</strong> 
+              con nieve y colores festivos.
+            </p>
+          </details>
+          
+          <details class="bg-white/5 rounded-xl p-4 cursor-pointer group">
+            <summary class="font-semibold text-white flex items-center justify-between">
+              ¿Cuántos participantes puedo añadir?
+              <span class="text-purple-400 group-open:rotate-180 transition-transform">▼</span>
+            </summary>
+            <p class="text-gray-300 mt-3 pl-4 border-l-2 border-purple-500">
+              Puedes añadir hasta <strong class="text-white">500 participantes</strong> para garantizar un buen rendimiento. 
+              Si necesitas más, la ruleta te avisará. También puedes importar listas desde archivos TXT, CSV o JSON.
+            </p>
+          </details>
+          
+          <details class="bg-white/5 rounded-xl p-4 cursor-pointer group">
+            <summary class="font-semibold text-white flex items-center justify-between">
+              ¿Qué modos de juego hay disponibles?
+              <span class="text-purple-400 group-open:rotate-180 transition-transform">▼</span>
+            </summary>
+            <p class="text-gray-300 mt-3 pl-4 border-l-2 border-purple-500">
+              Hay 4 modos disponibles: <strong class="text-yellow-400">Elegir Ganador</strong> (selecciona un ganador), 
+              <strong class="text-red-400">Eliminación</strong> (elimina participantes hasta quedar uno), 
+              <strong class="text-blue-400">Equipos</strong> (divide en grupos) y 
+              <strong class="text-green-400">Orden Aleatorio</strong> (ordena la lista al azar).
+            </p>
+          </details>
+        </div>
+      </article>
+    </section>
+  </main>
+</Layout>

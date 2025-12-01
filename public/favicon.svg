@@ -1,0 +1,54 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
+  <defs>
+    <linearGradient id="wheelGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#8B5CF6"/>
+      <stop offset="100%" style="stop-color:#EC4899"/>
+    </linearGradient>
+    <linearGradient id="sliceGrad1" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#FF6B6B"/>
+      <stop offset="100%" style="stop-color:#FF8E8E"/>
+    </linearGradient>
+    <linearGradient id="sliceGrad2" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#4ECDC4"/>
+      <stop offset="100%" style="stop-color:#6EE7DF"/>
+    </linearGradient>
+    <linearGradient id="sliceGrad3" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#45B7D1"/>
+      <stop offset="100%" style="stop-color:#67C9E0"/>
+    </linearGradient>
+    <linearGradient id="sliceGrad4" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#96CEB4"/>
+      <stop offset="100%" style="stop-color:#B8E0CE"/>
+    </linearGradient>
+  </defs>
+  
+  <!-- Wheel base circle -->
+  <circle cx="64" cy="64" r="58" fill="url(#wheelGrad)" opacity="0.3"/>
+  
+  <!-- Wheel slices -->
+  <path d="M64 64 L64 10 A54 54 0 0 1 110.5 37 Z" fill="url(#sliceGrad1)"/>
+  <path d="M64 64 L110.5 37 A54 54 0 0 1 110.5 91 Z" fill="url(#sliceGrad2)"/>
+  <path d="M64 64 L110.5 91 A54 54 0 0 1 64 118 Z" fill="url(#sliceGrad3)"/>
+  <path d="M64 64 L64 118 A54 54 0 0 1 17.5 91 Z" fill="url(#sliceGrad4)"/>
+  <path d="M64 64 L17.5 91 A54 54 0 0 1 17.5 37 Z" fill="url(#sliceGrad1)"/>
+  <path d="M64 64 L17.5 37 A54 54 0 0 1 64 10 Z" fill="url(#sliceGrad2)"/>
+  
+  <!-- Wheel border -->
+  <circle cx="64" cy="64" r="54" fill="none" stroke="#ffffff" stroke-width="4"/>
+  
+  <!-- Slice dividers -->
+  <line x1="64" y1="64" x2="64" y2="10" stroke="#ffffff" stroke-width="2"/>
+  <line x1="64" y1="64" x2="110.5" y2="37" stroke="#ffffff" stroke-width="2"/>
+  <line x1="64" y1="64" x2="110.5" y2="91" stroke="#ffffff" stroke-width="2"/>
+  <line x1="64" y1="64" x2="64" y2="118" stroke="#ffffff" stroke-width="2"/>
+  <line x1="64" y1="64" x2="17.5" y2="91" stroke="#ffffff" stroke-width="2"/>
+  <line x1="64" y1="64" x2="17.5" y2="37" stroke="#ffffff" stroke-width="2"/>
+  
+  <!-- Center hub -->
+  <circle cx="64" cy="64" r="16" fill="#1F2937"/>
+  <circle cx="64" cy="64" r="16" fill="none" stroke="#ffffff" stroke-width="3"/>
+  <circle cx="64" cy="64" r="8" fill="url(#wheelGrad)"/>
+  
+  <!-- Pointer -->
+  <polygon points="120,64 128,58 128,70" fill="#FACC15" stroke="#ffffff" stroke-width="1"/>
+</svg>

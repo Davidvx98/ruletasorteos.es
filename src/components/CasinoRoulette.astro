@@ -1,0 +1,1749 @@
+---
+// CasinoRoulette.astro - Ruleta tipo casino horizontal
+---
+
+<div id="casino-roulette" class="min-h-screen bg-linear-to-br from-gray-900 via-green-950 to-gray-900 text-white p-4">
+  <!-- Header -->
+  <div class="text-center mb-6">
+    <a href="/" class="inline-flex items-center gap-2 text-green-400 hover:text-green-300 mb-4 transition-colors">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+      </svg>
+      Volver a la ruleta clásica
+    </a>
+    <h1 class="text-3xl md:text-4xl font-bold bg-linear-to-r from-yellow-400 via-red-500 to-yellow-400 bg-clip-text text-transparent">
+      🎰 Ruleta de Casino 🎰
+    </h1>
+    <p class="text-gray-400 mt-2">Estilo Las Vegas - Rojo y Negro</p>
+  </div>
+
+  <!-- Main Grid -->
+  <div class="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-4 gap-6">
+    <!-- Left Panel - Participants -->
+    <div class="bg-gray-800/50 backdrop-blur rounded-2xl p-4 border border-gray-700">
+      <h2 class="text-xl font-bold text-center mb-4 text-yellow-400">👥 Participantes</h2>
+      
+      <!-- Add participant -->
+      <div class="flex gap-2 mb-4">
+        <input 
+          type="text" 
+          id="participant-input" 
+          placeholder="Nombre del participante"
+          class="flex-1 bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-white placeholder-gray-400 focus:outline-none focus:border-yellow-400"
+          maxlength="50"
+        />
+        <button 
+          id="add-participant"
+          class="bg-green-600 hover:bg-green-500 px-4 py-2 rounded-lg font-bold transition-colors"
+        >
+          +
+        </button>
+      </div>
+
+      <!-- Bulk add -->
+      <div class="mb-4">
+        <textarea 
+          id="bulk-input" 
+          placeholder="Añadir varios (uno por línea)"
+          class="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-white placeholder-gray-400 focus:outline-none focus:border-yellow-400 h-20 resize-none"
+        ></textarea>
+        <button 
+          id="bulk-add"
+          class="w-full mt-2 bg-blue-600 hover:bg-blue-500 px-4 py-2 rounded-lg font-bold transition-colors"
+        >
+          Añadir Lista
+        </button>
+      </div>
+
+      <!-- Green slot option -->
+      <div class="mb-4 p-3 bg-green-900/30 rounded-lg border border-green-700">
+        <label class="flex items-center gap-2 cursor-pointer">
+          <input type="checkbox" id="enable-green" class="w-4 h-4 accent-green-500">
+          <span class="text-green-400 font-medium">🟢 Casilla Verde (2.7%)</span>
+        </label>
+        <p class="text-xs text-gray-400 mt-1">Si sale verde, ¡todos pierden!</p>
+      </div>
+
+      <!-- Sudden Death Mode -->
+      <div class="mb-4 p-3 bg-red-900/30 rounded-lg border border-red-700">
+        <label class="flex items-center gap-2 cursor-pointer">
+          <input type="checkbox" id="sudden-death-mode" class="w-4 h-4 accent-red-500">
+          <span class="text-red-400 font-medium">💀 Muerte Súbita</span>
+        </label>
+        <p class="text-xs text-gray-400 mt-1">El que sale es eliminado. ¡El último gana!</p>
+        <div id="sudden-death-status" class="mt-2 hidden">
+          <div class="text-xs text-yellow-400">Ronda: <span id="round-number">1</span></div>
+          <div class="text-xs text-gray-400">Quedan: <span id="remaining-count">0</span> participantes</div>
+        </div>
+      </div>
+
+      <!-- Special Modes -->
+      <div class="mb-4 p-3 bg-purple-900/30 rounded-lg border border-purple-700">
+        <div class="text-purple-400 font-medium mb-2">🎮 Modos Especiales</div>
+        <p class="text-xs text-gray-400 mb-2">Puedes combinarlos con Muerte Súbita</p>
+        <div class="space-y-2">
+          <label class="flex items-center gap-2 cursor-pointer">
+            <input type="checkbox" id="troll-mode" class="w-4 h-4 accent-orange-500">
+            <span class="text-orange-400 text-sm">🤡 Modo Troll (rebota antes de parar)</span>
+          </label>
+          <label class="flex items-center gap-2 cursor-pointer">
+            <input type="checkbox" id="mystery-mode" class="w-4 h-4 accent-pink-500">
+            <span class="text-pink-400 text-sm">❓ Modo Misterio (nombres ocultos)</span>
+          </label>
+        </div>
+      </div>
+
+      <!-- Speed Selection -->
+      <div class="mb-4 p-3 bg-blue-900/30 rounded-lg border border-blue-700">
+        <div class="text-blue-400 font-medium mb-2">⚡ Velocidad</div>
+        <div class="space-y-2">
+          <label class="flex items-center gap-2 cursor-pointer">
+            <input type="radio" name="casino-speed" value="1" class="w-4 h-4 accent-blue-500">
+            <span class="text-white text-sm">🚀 Rápida (1s)</span>
+          </label>
+          <label class="flex items-center gap-2 cursor-pointer">
+            <input type="radio" name="casino-speed" value="5" checked class="w-4 h-4 accent-blue-500">
+            <span class="text-white text-sm">🚶 Normal (5s)</span>
+          </label>
+          <label class="flex items-center gap-2 cursor-pointer">
+            <input type="radio" name="casino-speed" value="10" class="w-4 h-4 accent-blue-500">
+            <span class="text-white text-sm">🐢 Lenta (10s)</span>
+          </label>
+        </div>
+      </div>
+
+      <!-- Participant list -->
+      <div id="participant-list" class="space-y-2 max-h-64 overflow-y-auto">
+        <!-- Participants will be added here -->
+      </div>
+
+      <!-- Clear all -->
+      <button 
+        id="clear-all"
+        class="w-full mt-4 bg-red-600/50 hover:bg-red-600 px-4 py-2 rounded-lg font-bold transition-colors"
+      >
+        🗑️ Limpiar Todo
+      </button>
+    </div>
+
+    <!-- Center - Roulette Wheel (horizontal) -->
+    <div class="lg:col-span-2 flex flex-col items-center justify-center">
+      <!-- Roulette Container -->
+      <div class="relative w-full max-w-2xl">
+        <!-- Static arrow pointer (center top) -->
+        <div class="absolute top-0 left-1/2 -translate-x-1/2 z-20 flex flex-col items-center">
+          <div class="w-0 h-0 border-l-20 border-l-transparent border-r-20 border-r-transparent border-t-30 border-t-yellow-400 drop-shadow-lg"></div>
+          <div class="w-1 h-4 bg-yellow-400"></div>
+        </div>
+        
+        <!-- Roulette strip container with gradient masks -->
+        <div class="relative mt-10 overflow-hidden rounded-xl border-4 border-yellow-600 shadow-2xl bg-gray-900">
+          <!-- Left fade gradient -->
+          <div class="absolute left-0 top-0 bottom-0 w-16 bg-linear-to-r from-gray-900 to-transparent z-10 pointer-events-none"></div>
+          <!-- Right fade gradient -->
+          <div class="absolute right-0 top-0 bottom-0 w-16 bg-linear-to-l from-gray-900 to-transparent z-10 pointer-events-none"></div>
+          
+          <!-- Canvas for horizontal roulette with square slots -->
+          <canvas id="roulette-canvas" width="720" height="120" class="block w-full h-auto"></canvas>
+        </div>
+
+        <!-- Decorative elements -->
+        <div class="flex justify-center mt-4 gap-2">
+          <span class="text-2xl">♠️</span>
+          <span class="text-2xl">♥️</span>
+          <span class="text-2xl">♣️</span>
+          <span class="text-2xl">♦️</span>
+        </div>
+      </div>
+
+      <!-- Spin Button -->
+      <button 
+        id="spin-btn"
+        class="mt-8 px-12 py-4 bg-linear-to-r from-yellow-500 via-yellow-400 to-yellow-500 text-gray-900 font-bold text-2xl rounded-full shadow-lg hover:scale-105 transition-transform disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+        disabled
+      >
+        🎰 GIRAR 🎰
+      </button>
+
+      <!-- Winner announcement -->
+      <div id="winner-display" class="mt-6 text-center hidden">
+        <div class="text-3xl font-bold animate-pulse" id="winner-text"></div>
+        <div class="text-lg mt-2" id="winner-color"></div>
+      </div>
+
+      <!-- Sudden Death Eliminated Panel -->
+      <div id="eliminated-panel" class="mt-4 w-full max-w-md hidden">
+        <div class="bg-gray-800/70 rounded-xl p-4 border border-red-600">
+          <h3 class="text-center text-red-400 font-bold mb-2">💀 Eliminados</h3>
+          <div id="eliminated-list" class="flex flex-wrap gap-2 justify-center max-h-32 overflow-y-auto">
+          </div>
+        </div>
+      </div>
+
+      <!-- Final Winner Panel -->
+      <div id="final-winner-panel" class="mt-6 hidden">
+        <div class="bg-linear-to-r from-yellow-600 via-yellow-400 to-yellow-600 p-1 rounded-2xl">
+          <div class="bg-gray-900 rounded-xl p-6 text-center">
+            <div class="text-5xl mb-2">👑</div>
+            <div class="text-2xl font-bold text-yellow-400">¡GANADOR FINAL!</div>
+            <div class="text-3xl font-bold text-white mt-2" id="final-winner-name"></div>
+            <button id="reset-sudden-death" class="mt-4 px-6 py-2 bg-green-600 hover:bg-green-500 rounded-lg font-bold transition-colors">
+              🔄 Nueva Partida
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Panel - Results -->
+    <div class="bg-gray-800/50 backdrop-blur rounded-2xl p-4 border border-gray-700">
+      <h2 class="text-xl font-bold text-center mb-4 text-yellow-400">🏆 Historial</h2>
+      
+      <!-- Stats -->
+      <div class="grid grid-cols-3 gap-2 mb-4 text-center">
+        <div class="bg-red-900/50 rounded-lg p-2">
+          <div class="text-xl font-bold text-red-400" id="red-count">0</div>
+          <div class="text-xs text-gray-400">Rojos</div>
+        </div>
+        <div class="bg-gray-700/50 rounded-lg p-2">
+          <div class="text-xl font-bold text-gray-300" id="black-count">0</div>
+          <div class="text-xs text-gray-400">Negros</div>
+        </div>
+        <div class="bg-green-900/50 rounded-lg p-2">
+          <div class="text-xl font-bold text-green-400" id="green-count">0</div>
+          <div class="text-xs text-gray-400">Verdes</div>
+        </div>
+      </div>
+
+      <!-- History list -->
+      <div id="history-list" class="space-y-2 max-h-80 overflow-y-auto">
+        <p class="text-gray-500 text-center text-sm">Sin resultados aún</p>
+      </div>
+
+      <!-- Clear history -->
+      <button 
+        id="clear-history"
+        class="w-full mt-4 bg-gray-700 hover:bg-gray-600 px-4 py-2 rounded-lg transition-colors"
+      >
+        Limpiar Historial
+      </button>
+    </div>
+  </div>
+
+  <!-- Provably Fair Info -->
+  <div class="max-w-7xl mx-auto mt-8 bg-gray-800/30 rounded-xl p-4 border border-gray-700">
+    <details>
+      <summary class="cursor-pointer text-yellow-400 font-bold">🔒 Sistema Provably Fair</summary>
+      <div class="mt-4 text-sm text-gray-400">
+        <p>Esta ruleta utiliza <code class="bg-gray-700 px-1 rounded">crypto.getRandomValues()</code> para generar números aleatorios criptográficamente seguros.</p>
+        <div class="mt-2 bg-gray-900 rounded-lg p-3 font-mono text-xs">
+          <div>Última semilla: <span id="last-seed" class="text-green-400">-</span></div>
+          <div>Último resultado: <span id="last-result" class="text-yellow-400">-</span></div>
+        </div>
+      </div>
+    </details>
+  </div>
+
+  <!-- Provably Fair Verifier -->
+  <div class="max-w-7xl mx-auto mt-4 bg-gray-800/50 rounded-xl p-6 border border-purple-700">
+    <div class="flex items-center gap-3 mb-4">
+      <span class="text-3xl">⚖️</span>
+      <h2 class="text-xl font-bold text-purple-400">Verificador Provably Fair</h2>
+    </div>
+    <p class="text-gray-400 text-sm mb-4">
+      Introduce una semilla para verificar que el resultado no está trucado. El algoritmo es determinista: la misma semilla siempre produce el mismo resultado.
+    </p>
+    
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <!-- Input Section -->
+      <div class="space-y-4">
+        <div>
+          <label class="block text-sm text-gray-300 mb-2">🌱 Semilla (hexadecimal)</label>
+          <div class="flex gap-2">
+            <input 
+              type="text" 
+              id="verify-seed-input"
+              placeholder="Ej: a1b2c3d4"
+              class="flex-1 bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-white font-mono placeholder-gray-500 focus:outline-none focus:border-purple-400"
+              maxlength="8"
+            />
+            <button 
+              id="verify-seed-btn"
+              class="bg-purple-600 hover:bg-purple-500 px-4 py-2 rounded-lg font-bold transition-colors"
+            >
+              Verificar
+            </button>
+          </div>
+        </div>
+        
+        <div>
+          <label class="block text-sm text-gray-300 mb-2">👥 Número de participantes</label>
+          <input 
+            type="number" 
+            id="verify-participants-count"
+            placeholder="Ej: 10"
+            min="2"
+            max="100"
+            class="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-white placeholder-gray-500 focus:outline-none focus:border-purple-400"
+          />
+        </div>
+        
+        <div>
+          <label class="flex items-center gap-2 cursor-pointer">
+            <input type="checkbox" id="verify-green-enabled" class="w-4 h-4 accent-green-500">
+            <span class="text-gray-300 text-sm">🟢 Casilla verde habilitada (2.7%)</span>
+          </label>
+        </div>
+      </div>
+      
+      <!-- Results Section -->
+      <div class="bg-gray-900/50 rounded-xl p-4 border border-gray-700">
+        <h3 class="text-sm font-bold text-gray-300 mb-3">📊 Resultado de la Verificación</h3>
+        <div id="verify-results" class="space-y-2 text-sm font-mono">
+          <div class="text-gray-500 text-center py-4">
+            Introduce una semilla y pulsa verificar
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Algorithm Explanation -->
+    <details class="mt-4">
+      <summary class="cursor-pointer text-gray-400 text-sm hover:text-gray-300">📖 ¿Cómo funciona el algoritmo?</summary>
+      <div class="mt-3 bg-gray-900/50 rounded-lg p-4 text-xs text-gray-400 font-mono">
+        <div class="whitespace-pre-wrap">
+1. La semilla es un número hexadecimal de 8 caracteres
+2. Se convierte a un entero de 32 bits (Uint32)
+3. Se divide entre 0xFFFFFFFF + 1 para obtener un decimal [0, 1)
+4. Si hay verde habilitado:
+   - Si valor &lt; 0.027 (2.7%) → Gana verde
+   - Si no: valor_ajustado = (valor - 0.027) / 0.973
+5. Índice ganador = floor(valor_ajustado × número_participantes)
+6. El participante en ese índice es el ganador</div>
+      </div>
+    </details>
+  </div>
+</div>
+
+<script>
+  // Security functions
+  function escapeHtml(text: string): string {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+  }
+
+  function sanitizeName(name: string): string {
+    return name
+      .normalize('NFC')
+      .replace(/[\x00-\x1F\x7F]/g, '')
+      .replace(/<[^>]*>/g, '')
+      .trim()
+      .slice(0, 50);
+  }
+
+  // State
+  interface Participant {
+    id: string;
+    name: string;
+    color: 'red' | 'black' | 'green';
+  }
+
+  interface HistoryEntry {
+    name: string;
+    color: 'red' | 'black' | 'green';
+    timestamp: Date;
+  }
+
+  let participants: Participant[] = [];
+  let history: HistoryEntry[] = [];
+  let isSpinning = false;
+  let stripOffset = 0;
+  let slotWidth = 100; // Width of each slot in pixels
+  let lastSlotIndex = -1; // Track which slot we're on for click sounds
+  let audioCtx: AudioContext | null = null;
+
+  // Sudden Death Mode state
+  let suddenDeathActive = false;
+  let eliminatedParticipants: Participant[] = [];
+  let roundNumber = 1;
+  let originalParticipants: Participant[] = []; // Store original list for reset
+
+  // Special modes state
+  let trollModeActive = false;
+  let mysteryModeActive = false;
+  let mysteryRevealed = false; // When true, show names but keep shuffled order
+  let shuffledDisplayOrder: number[] = []; // For mystery mode - shuffled indices
+  let mysteryColors: string[] = []; // Random colors for mystery mode
+
+  // DOM Elements
+  const canvas = document.getElementById('roulette-canvas') as HTMLCanvasElement;
+  const ctx = canvas.getContext('2d')!;
+  const spinBtn = document.getElementById('spin-btn') as HTMLButtonElement;
+  const participantInput = document.getElementById('participant-input') as HTMLInputElement;
+  const addBtn = document.getElementById('add-participant') as HTMLButtonElement;
+  const bulkInput = document.getElementById('bulk-input') as HTMLTextAreaElement;
+  const bulkAddBtn = document.getElementById('bulk-add') as HTMLButtonElement;
+  const clearAllBtn = document.getElementById('clear-all') as HTMLButtonElement;
+  const clearHistoryBtn = document.getElementById('clear-history') as HTMLButtonElement;
+  const participantList = document.getElementById('participant-list') as HTMLDivElement;
+  const historyList = document.getElementById('history-list') as HTMLDivElement;
+  const winnerDisplay = document.getElementById('winner-display') as HTMLDivElement;
+  const winnerText = document.getElementById('winner-text') as HTMLDivElement;
+  const winnerColor = document.getElementById('winner-color') as HTMLDivElement;
+  const enableGreen = document.getElementById('enable-green') as HTMLInputElement;
+
+  // Special mode elements
+  const trollModeCheckbox = document.getElementById('troll-mode') as HTMLInputElement;
+  const mysteryModeCheckbox = document.getElementById('mystery-mode') as HTMLInputElement;
+
+  // Sudden Death elements
+  const suddenDeathMode = document.getElementById('sudden-death-mode') as HTMLInputElement;
+  const suddenDeathStatus = document.getElementById('sudden-death-status') as HTMLDivElement;
+  const roundNumberEl = document.getElementById('round-number') as HTMLSpanElement;
+  const remainingCountEl = document.getElementById('remaining-count') as HTMLSpanElement;
+  const eliminatedPanel = document.getElementById('eliminated-panel') as HTMLDivElement;
+  const eliminatedList = document.getElementById('eliminated-list') as HTMLDivElement;
+  const finalWinnerPanel = document.getElementById('final-winner-panel') as HTMLDivElement;
+  const finalWinnerName = document.getElementById('final-winner-name') as HTMLDivElement;
+  const resetSuddenDeathBtn = document.getElementById('reset-sudden-death') as HTMLButtonElement;
+
+  // Provably fair elements
+  const lastSeedEl = document.getElementById('last-seed') as HTMLSpanElement;
+  const lastResultEl = document.getElementById('last-result') as HTMLSpanElement;
+
+  // Stats elements
+  const redCountEl = document.getElementById('red-count') as HTMLDivElement;
+  const blackCountEl = document.getElementById('black-count') as HTMLDivElement;
+  const greenCountEl = document.getElementById('green-count') as HTMLDivElement;
+
+  // Generate secure random
+  function secureRandom(): { value: number; seed: string } {
+    const array = new Uint32Array(1);
+    crypto.getRandomValues(array);
+    const seed = array[0].toString(16).padStart(8, '0');
+    const value = array[0] / (0xFFFFFFFF + 1);
+    return { value, seed };
+  }
+
+  // Add participant
+  function addParticipant(name: string) {
+    const sanitized = sanitizeName(name);
+    if (!sanitized) return;
+
+    const colorIndex = participants.length % 2;
+    const color: 'red' | 'black' = colorIndex === 0 ? 'red' : 'black';
+
+    participants.push({
+      id: crypto.randomUUID(),
+      name: sanitized,
+      color
+    });
+
+    updateUI();
+  }
+
+  // Remove participant
+  function removeParticipant(id: string) {
+    participants = participants.filter(p => p.id !== id);
+    // Reassign colors
+    participants = participants.map((p, i) => ({
+      ...p,
+      color: i % 2 === 0 ? 'red' : 'black'
+    }));
+    updateUI();
+  }
+
+  // Update UI
+  function updateUI() {
+    // Update participant list
+    if (participants.length === 0) {
+      participantList.innerHTML = '<p class="text-gray-500 text-center text-sm">Sin participantes</p>';
+    } else {
+      participantList.innerHTML = '';
+      participants.forEach(p => {
+        const div = document.createElement('div');
+        div.className = `flex items-center gap-2 p-2 rounded-lg ${p.color === 'red' ? 'bg-red-900/50' : 'bg-gray-700/50'}`;
+        
+        const emoji = document.createElement('span');
+        emoji.className = 'text-lg';
+        emoji.textContent = p.color === 'red' ? '🔴' : '⚫';
+        
+        const name = document.createElement('span');
+        name.className = 'flex-1 truncate';
+        name.textContent = p.name;
+        
+        const btn = document.createElement('button');
+        btn.className = 'text-red-400 hover:text-red-300 px-2';
+        btn.textContent = '✕';
+        btn.setAttribute('aria-label', `Eliminar ${p.name}`);
+        btn.addEventListener('click', () => removeParticipant(p.id));
+        
+        div.appendChild(emoji);
+        div.appendChild(name);
+        div.appendChild(btn);
+        participantList.appendChild(div);
+      });
+    }
+
+    // Update spin button
+    spinBtn.disabled = participants.length < 2 || isSpinning;
+
+    // Draw wheel
+    drawStrip();
+  }
+
+  // Mystery mode colors palette
+  const MYSTERY_COLORS = [
+    '#8B5CF6', '#EC4899', '#06B6D4', '#10B981', '#F59E0B', 
+    '#EF4444', '#3B82F6', '#6366F1', '#14B8A6', '#F97316',
+    '#A855F7', '#D946EF', '#0EA5E9', '#84CC16', '#FBBF24'
+  ];
+
+  // Shuffle array for mystery mode
+  function shuffleArray<T>(array: T[]): T[] {
+    const shuffled = [...array];
+    for (let i = shuffled.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
+    return shuffled;
+  }
+
+  // Initialize mystery mode display
+  function initMysteryDisplay() {
+    if (participants.length > 0) {
+      // Create shuffled indices
+      shuffledDisplayOrder = shuffleArray([...Array(participants.length).keys()]);
+      // Assign random colors
+      mysteryColors = shuffleArray([...MYSTERY_COLORS]).slice(0, Math.max(participants.length, 15));
+      // Ensure we have enough colors by repeating if needed
+      while (mysteryColors.length < participants.length) {
+        mysteryColors = mysteryColors.concat(shuffleArray([...MYSTERY_COLORS]));
+      }
+    }
+  }
+
+  // Draw horizontal strip with square slots
+  function drawStrip() {
+    const width = canvas.width;
+    const height = canvas.height;
+
+    ctx.clearRect(0, 0, width, height);
+
+    if (participants.length === 0) {
+      ctx.fillStyle = '#1f2937';
+      ctx.fillRect(0, 0, width, height);
+      ctx.fillStyle = '#6b7280';
+      ctx.font = 'bold 18px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText('Añade participantes para comenzar', width / 2, height / 2);
+      return;
+    }
+
+    // Square slots: width = height
+    slotWidth = height; // 120px squares
+    const gap = 4; // Gap between squares
+    const slotWithGap = slotWidth + gap;
+    
+    // Create the basic slot sequence (one rotation worth)
+    const hasGreen = enableGreen.checked;
+    let baseSlots: Participant[] = [];
+    
+    // If green enabled, it goes first
+    if (hasGreen) {
+      baseSlots.push({
+        id: 'green',
+        name: (mysteryModeActive && !mysteryRevealed) ? '❓' : '0',
+        color: 'green'
+      });
+    }
+    
+    // Add participants (in shuffled order if mystery mode is active or was active)
+    if ((mysteryModeActive || mysteryRevealed) && shuffledDisplayOrder.length === participants.length) {
+      shuffledDisplayOrder.forEach(idx => {
+        baseSlots.push({ ...participants[idx] });
+      });
+    } else {
+      participants.forEach(p => {
+        baseSlots.push({ ...p });
+      });
+    }
+    
+    const slotsPerRotation = baseSlots.length;
+    
+    // Create extended list for seamless scrolling (enough to fill screen multiple times)
+    let slots: Participant[] = [];
+    for (let i = 0; i < 20; i++) {
+      slots = slots.concat(baseSlots.map(s => ({ ...s })));
+    }
+
+    // Draw slots
+    // The center of the screen is at width/2
+    // We want the slot at position (stripOffset / slotWithGap) to be centered
+    // Calculate where the strip starts so the current position is centered
+    const currentSlotPosition = stripOffset / slotWithGap;
+    const centerX = width / 2;
+    
+    // Draw each slot
+    for (let i = 0; i < slots.length; i++) {
+      // Position of slot i relative to current scroll position
+      const relativePos = i - currentSlotPosition;
+      const x = centerX + relativePos * slotWithGap - slotWidth / 2;
+      
+      // Skip if off screen (with some margin for smooth scrolling)
+      if (x + slotWidth < -slotWidth * 2 || x > width + slotWidth * 2) continue;
+
+      const slot = slots[i];
+      
+      // Calculate position within the rotation for consistent colors
+      const posInRotation = i % slotsPerRotation;
+      
+      // Background color with gradient effect
+      if ((mysteryModeActive && !mysteryRevealed) && slot.color !== 'green') {
+        // Use mystery colors based on position in rotation
+        const colorIndex = posInRotation % mysteryColors.length;
+        const baseColor = mysteryColors[colorIndex];
+        const gradient = ctx.createLinearGradient(x, 0, x + slotWidth, height);
+        gradient.addColorStop(0, baseColor);
+        gradient.addColorStop(0.5, adjustColor(baseColor, -20));
+        gradient.addColorStop(1, adjustColor(baseColor, -40));
+        ctx.fillStyle = gradient;
+      } else if (slot.color === 'red') {
+        const gradient = ctx.createLinearGradient(x, 0, x + slotWidth, height);
+        gradient.addColorStop(0, '#ef4444');
+        gradient.addColorStop(0.5, '#dc2626');
+        gradient.addColorStop(1, '#b91c1c');
+        ctx.fillStyle = gradient;
+      } else if (slot.color === 'green') {
+        const gradient = ctx.createLinearGradient(x, 0, x + slotWidth, height);
+        gradient.addColorStop(0, '#22c55e');
+        gradient.addColorStop(0.5, '#16a34a');
+        gradient.addColorStop(1, '#15803d');
+        ctx.fillStyle = gradient;
+      } else {
+        const gradient = ctx.createLinearGradient(x, 0, x + slotWidth, height);
+        gradient.addColorStop(0, '#374151');
+        gradient.addColorStop(0.5, '#1f2937');
+        gradient.addColorStop(1, '#111827');
+        ctx.fillStyle = gradient;
+      }
+      
+      // Draw rounded rectangle for each square slot
+      const radius = 8;
+      ctx.beginPath();
+      ctx.roundRect(x, 2, slotWidth, height - 4, radius);
+      ctx.fill();
+
+      // Border - purple for mystery mode
+      ctx.strokeStyle = (mysteryModeActive && !mysteryRevealed) ? '#A855F7' : '#fbbf24';
+      ctx.lineWidth = 3;
+      ctx.stroke();
+
+      // Inner shadow effect
+      ctx.strokeStyle = 'rgba(0,0,0,0.3)';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.roundRect(x + 3, 5, slotWidth - 6, height - 10, radius - 2);
+      ctx.stroke();
+
+      // Text - wrap if needed
+      ctx.fillStyle = '#ffffff';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      
+      // In mystery mode, show "?" instead of names (unless revealed)
+      const displayName = (mysteryModeActive && !mysteryRevealed) && slot.color !== 'green' ? '❓' : slot.name;
+      const slotCenterX = x + slotWidth / 2;
+      const slotCenterY = height / 2;
+      
+      if ((mysteryModeActive && !mysteryRevealed) && slot.color !== 'green') {
+        // Show big question mark
+        ctx.font = 'bold 48px sans-serif';
+        ctx.fillStyle = 'rgba(0,0,0,0.3)';
+        ctx.fillText('❓', slotCenterX + 2, slotCenterY + 2);
+        ctx.fillStyle = '#ffffff';
+        ctx.fillText('❓', slotCenterX, slotCenterY);
+      } else {
+        // Calculate font size based on name length
+        let fontSize = 16;
+        if (displayName.length > 10) fontSize = 12;
+        if (displayName.length > 15) fontSize = 10;
+        
+        ctx.font = `bold ${fontSize}px sans-serif`;
+        
+        // Word wrap for long names
+        const maxWidth = slotWidth - 16;
+        const words = displayName.split(' ');
+        const lines: string[] = [];
+        let currentLine = '';
+        
+        for (const word of words) {
+          const testLine = currentLine ? currentLine + ' ' + word : word;
+          const metrics = ctx.measureText(testLine);
+          
+          if (metrics.width > maxWidth && currentLine) {
+            lines.push(currentLine);
+            currentLine = word;
+          } else {
+            currentLine = testLine;
+          }
+        }
+        if (currentLine) lines.push(currentLine);
+        
+        // Limit to 3 lines max
+        const displayLines = lines.slice(0, 3);
+        if (lines.length > 3) {
+          displayLines[2] = displayLines[2].slice(0, -1) + '…';
+        }
+        
+        // Draw text lines
+        const lineHeight = fontSize + 4;
+        const totalTextHeight = displayLines.length * lineHeight;
+        const startY = slotCenterY - totalTextHeight / 2 + lineHeight / 2;
+        
+        // Text shadow
+        ctx.fillStyle = 'rgba(0,0,0,0.5)';
+        displayLines.forEach((line, idx) => {
+          ctx.fillText(line, slotCenterX + 1, startY + idx * lineHeight + 1);
+        });
+        
+        // Main text
+        ctx.fillStyle = '#ffffff';
+        displayLines.forEach((line, idx) => {
+          ctx.fillText(line, slotCenterX, startY + idx * lineHeight);
+        });
+      }
+    }
+  }
+
+  // Helper function to adjust color brightness
+  function adjustColor(hex: string, amount: number): string {
+    const num = parseInt(hex.replace('#', ''), 16);
+    const r = Math.min(255, Math.max(0, (num >> 16) + amount));
+    const g = Math.min(255, Math.max(0, ((num >> 8) & 0x00FF) + amount));
+    const b = Math.min(255, Math.max(0, (num & 0x0000FF) + amount));
+    return `#${((r << 16) | (g << 8) | b).toString(16).padStart(6, '0')}`;
+  }
+
+  // Get selected speed
+  function getSelectedSpeed(): number {
+    const speedRadios = document.querySelectorAll<HTMLInputElement>('input[name="casino-speed"]');
+    for (const radio of speedRadios) {
+      if (radio.checked) {
+        return parseFloat(radio.value);
+      }
+    }
+    return 5; // default 5 seconds
+  }
+
+  // Spin animation
+  function spin() {
+    if (participants.length < 2 || isSpinning) return;
+
+    isSpinning = true;
+    spinBtn.disabled = true;
+    winnerDisplay.classList.add('hidden');
+    
+    // Reset stripOffset to 0 at the start of each spin for consistent behavior
+    stripOffset = 0;
+    
+    // Reshuffle mystery mode if active (for fresh randomization each spin)
+    if (mysteryModeActive) {
+      initMysteryDisplay();
+    }
+
+    // Generate random result using crypto
+    const { value: randomValue, seed } = secureRandom();
+    
+    // Check for green (2.7% chance)
+    const hasGreen = enableGreen.checked;
+    let winner: Participant;
+    let targetColor: 'red' | 'black' | 'green';
+
+    if (hasGreen && randomValue < 0.027) {
+      // Green wins!
+      targetColor = 'green';
+      winner = {
+        id: 'green',
+        name: '0 - Verde',
+        color: 'green'
+      };
+    } else {
+      // Normal participant wins
+      const adjustedRandom = hasGreen ? (randomValue - 0.027) / 0.973 : randomValue;
+      const winnerIndex = Math.floor(adjustedRandom * participants.length);
+      winner = participants[Math.min(winnerIndex, participants.length - 1)];
+      targetColor = winner.color;
+    }
+
+    // Update provably fair display (hide in mystery mode until reveal)
+    if (!mysteryModeActive) {
+      lastSeedEl.textContent = seed;
+      lastResultEl.textContent = `${winner.name} (${targetColor})`;
+    } else {
+      lastSeedEl.textContent = seed;
+      lastResultEl.textContent = '??? (misterio)';
+    }
+
+    // Calculate target position
+    const gap = 4;
+    const slotWithGap = slotWidth + gap;
+    
+    // Calculate how many slots per full rotation (including green if enabled)
+    const slotsPerRotation = participants.length + (hasGreen ? 1 : 0);
+    const rotations = 5 + Math.floor(randomValue * 3); // 5-7 full rotations
+    
+    // Find winner position in the slot sequence
+    let winnerSlotIndex: number;
+    if (targetColor === 'green') {
+      // Green is at position 0 in each group
+      winnerSlotIndex = 0;
+    } else {
+      // Find the participant's position
+      const participantIndex = participants.findIndex(p => p.id === winner.id);
+      // In mystery mode, find position in shuffled order
+      if ((mysteryModeActive || mysteryRevealed) && shuffledDisplayOrder.length === participants.length) {
+        winnerSlotIndex = shuffledDisplayOrder.indexOf(participantIndex);
+      } else {
+        winnerSlotIndex = participantIndex;
+      }
+      // If green is enabled, add 1 offset since green is at position 0
+      if (hasGreen) winnerSlotIndex++;
+    }
+
+    // Calculate the final offset so the winner slot is perfectly centered
+    // The center of the canvas is at width/2
+    // We want the center of the winner slot to be at canvas center
+    // startX in drawStrip = -((stripOffset % totalWidth) - width / 2 - slotWidth / 2)
+    // For slot at index i: x = startX + i * slotWithGap
+    // Slot center = x + slotWidth / 2
+    // We want: startX + winnerSlotIndex * slotWithGap + slotWidth / 2 = width / 2
+    // Solving: stripOffset should position the winner at center
+    
+    const totalSlotsToScroll = rotations * slotsPerRotation + winnerSlotIndex;
+    const targetOffset = totalSlotsToScroll * slotWithGap;
+    
+    const startOffset = stripOffset;
+    const totalDistance = targetOffset - startOffset;
+    
+    const selectedSpeed = getSelectedSpeed();
+    let duration = selectedSpeed * 1000;
+    const startTime = performance.now();
+    
+    // Store winner info for finishSpin
+    const spinWinner = winner;
+    const spinColor = targetColor;
+    
+    // Troll mode variables - choose fake winners and slow down convincingly
+    let trollFakeStops = trollModeActive ? 2 + Math.floor(Math.random() * 2) : 0; // 2-3 fake stops
+    let trollCurrentStop = 0;
+    let trollSlowDownPhase = false;
+    let trollPausePhase = false;
+    let trollPauseStart = 0;
+    let trollResumeStart = 0;
+    
+    // Select random fake winner slots (different from real winner)
+    const trollFakeWinnerSlots: number[] = [];
+    if (trollModeActive) {
+      const availableSlots = Array.from({length: slotsPerRotation}, (_, i) => i).filter(i => i !== winnerSlotIndex);
+      for (let i = 0; i < trollFakeStops; i++) {
+        const randomIndex = Math.floor(Math.random() * availableSlots.length);
+        trollFakeWinnerSlots.push(availableSlots.splice(randomIndex, 1)[0]);
+      }
+    }
+    
+    // Reset slot tracking for click sounds
+    lastSlotIndex = -1;
+    
+    // Initialize audio context on user interaction
+    getAudioContext();
+
+    function animate(currentTime: number) {
+      let elapsed = currentTime - startTime;
+      
+      // Handle troll pause (stopped on fake winner)
+      if (trollPausePhase) {
+        if (currentTime - trollPauseStart > 800) { // Pause for 800ms on fake winner
+          trollPausePhase = false;
+          trollResumeStart = currentTime;
+          trollCurrentStop++;
+          playTrollSound(); // "Psych!" sound
+        } else {
+          drawStrip();
+          requestAnimationFrame(animate);
+          return;
+        }
+      }
+      
+      let progress = Math.min(elapsed / duration, 1);
+      
+      // Troll mode: check if we should slow down for a fake stop
+      if (trollModeActive && trollCurrentStop < trollFakeStops && !trollSlowDownPhase && !trollPausePhase) {
+        // Calculate when to start slowing for the fake winner
+        const fakeWinnerSlot = trollFakeWinnerSlots[trollCurrentStop];
+        const currentRotations = Math.floor(stripOffset / (slotsPerRotation * slotWithGap));
+        const targetRotation = 3 + trollCurrentStop; // Stop at rotation 3, 4, 5...
+        const slotsUntilFake = (targetRotation * slotsPerRotation + fakeWinnerSlot) - (stripOffset / slotWithGap);
+        
+        // Start slowing down when we're about 3 slots away
+        if (slotsUntilFake <= 3 && slotsUntilFake > 0 && progress < 0.85) {
+          trollSlowDownPhase = true;
+        }
+      }
+      
+      // Apply slower easing during troll slow down to make it convincing
+      let adjustedProgress = progress;
+      if (trollSlowDownPhase && trollModeActive) {
+        const fakeWinnerSlot = trollFakeWinnerSlots[trollCurrentStop];
+        const targetRotation = 3 + trollCurrentStop;
+        const targetPos = (targetRotation * slotsPerRotation + fakeWinnerSlot) * slotWithGap;
+        
+        // Check if we've reached the fake winner position
+        if (stripOffset >= targetPos - slotWithGap * 0.5) {
+          trollSlowDownPhase = false;
+          trollPausePhase = true;
+          trollPauseStart = currentTime;
+          stripOffset = targetPos; // Snap to fake winner
+          drawStrip();
+          requestAnimationFrame(animate);
+          return;
+        }
+      }
+      
+      // Resume after troll pause with extra momentum
+      if (trollResumeStart > 0 && currentTime - trollResumeStart < 200) {
+        // Quick acceleration after troll pause
+        progress = Math.min(elapsed / duration, 1);
+      }
+      
+      // Easing function (ease out cubic)
+      const eased = 1 - Math.pow(1 - progress, 3);
+      
+      stripOffset = startOffset + totalDistance * eased;
+      
+      // Calculate current slot index for click sound
+      const currentSlotIndex = Math.floor(stripOffset / slotWithGap);
+      if (currentSlotIndex !== lastSlotIndex) {
+        lastSlotIndex = currentSlotIndex;
+        playCrystalClick();
+      }
+      
+      drawStrip();
+
+      if (progress < 1) {
+        requestAnimationFrame(animate);
+      } else {
+        // Animation complete
+        if (mysteryModeActive) {
+          revealMysteryWinner(spinWinner, spinColor);
+        } else {
+          finishSpin(spinWinner, spinColor);
+        }
+      }
+    }
+
+    requestAnimationFrame(animate);
+
+    // Play sound - now handled in animate loop
+    playSpinSound();
+  }
+
+  // Troll mode sound
+  // Troll mode sound - "Gotcha!" sound effect
+  function playTrollSound() {
+    try {
+      const ctx = getAudioContext();
+      const now = ctx.currentTime;
+      
+      // "Psych!" ascending then descending sound
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      
+      osc.type = 'square';
+      osc.frequency.setValueAtTime(200, now);
+      osc.frequency.linearRampToValueAtTime(800, now + 0.1);
+      osc.frequency.linearRampToValueAtTime(150, now + 0.3);
+      
+      gain.gain.setValueAtTime(0.2, now);
+      gain.gain.exponentialRampToValueAtTime(0.01, now + 0.35);
+      
+      osc.start(now);
+      osc.stop(now + 0.4);
+      
+      // Add a "boing" effect
+      const boing = ctx.createOscillator();
+      const boingGain = ctx.createGain();
+      
+      boing.connect(boingGain);
+      boingGain.connect(ctx.destination);
+      
+      boing.type = 'sine';
+      boing.frequency.setValueAtTime(600, now + 0.15);
+      boing.frequency.exponentialRampToValueAtTime(100, now + 0.4);
+      
+      boingGain.gain.setValueAtTime(0.15, now + 0.15);
+      boingGain.gain.exponentialRampToValueAtTime(0.01, now + 0.45);
+      
+      boing.start(now + 0.15);
+      boing.stop(now + 0.5);
+    } catch (e) {}
+  }
+
+  // Mystery reveal animation
+  function revealMysteryWinner(winner: Participant, color: 'red' | 'black' | 'green') {
+    // First show suspense
+    winnerDisplay.classList.remove('hidden');
+    winnerText.textContent = '🔮 Revelando...';
+    winnerText.className = 'text-2xl font-bold text-purple-400 animate-pulse';
+    winnerColor.textContent = '???';
+    winnerColor.className = 'text-lg mt-2 text-gray-400';
+
+    // Play mystery sound
+    playMysterySound();
+
+    // After delay, reveal
+    setTimeout(() => {
+      // Set revealed flag to show names but keep shuffled order
+      mysteryRevealed = true;
+      drawStrip();
+
+      // Update provably fair
+      lastResultEl.textContent = `${winner.name} (${color})`;
+
+      // Show winner with animation
+      winnerText.textContent = `✨ ${winner.name} ✨`;
+      winnerText.className = 'text-3xl font-bold text-white mystery-reveal';
+      
+      const colorEmoji = color === 'red' ? '🔴 ROJO' : color === 'green' ? '🟢 VERDE' : '⚫ NEGRO';
+      winnerColor.textContent = colorEmoji;
+      winnerColor.className = `text-lg mt-2 ${color === 'red' ? 'text-red-400' : color === 'green' ? 'text-green-400' : 'text-gray-400'}`;
+
+      playWinSound();
+
+      // After reveal animation, finish spin normally
+      setTimeout(() => {
+        winnerText.className = 'text-3xl font-bold text-white';
+        finishSpin(winner, color);
+        
+        // Reset revealed flag and reshuffle for next spin
+        mysteryRevealed = false;
+        if (mysteryModeActive) {
+          initMysteryDisplay();
+          drawStrip();
+        }
+      }, 1500);
+    }, 1200);
+  }
+
+  // Mystery reveal sound
+  function playMysterySound() {
+    try {
+      const ctx = getAudioContext();
+      const now = ctx.currentTime;
+      
+      // Mysterious ascending arpeggio
+      const notes = [220, 277.18, 329.63, 440, 554.37, 659.25];
+      
+      notes.forEach((freq, i) => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        
+        osc.type = 'sine';
+        osc.frequency.value = freq;
+        
+        const startTime = now + i * 0.12;
+        gain.gain.setValueAtTime(0, startTime);
+        gain.gain.linearRampToValueAtTime(0.1, startTime + 0.05);
+        gain.gain.exponentialRampToValueAtTime(0.01, startTime + 0.25);
+        
+        osc.start(startTime);
+        osc.stop(startTime + 0.3);
+      });
+    } catch (e) {}
+  }
+
+  function finishSpin(winner: Participant, color: 'red' | 'black' | 'green') {
+    isSpinning = false;
+
+    // Handle Sudden Death Mode
+    if (suddenDeathActive && color !== 'green') {
+      // Eliminate the selected participant
+      eliminatedParticipants.push(winner);
+      participants = participants.filter(p => p.id !== winner.id);
+      
+      // Reassign colors after elimination
+      participants = participants.map((p, i) => ({
+        ...p,
+        color: (i % 2 === 0 ? 'red' : 'black') as 'red' | 'black'
+      }));
+      
+      // Reshuffle mystery mode after elimination if active
+      if (mysteryModeActive && participants.length > 0) {
+        initMysteryDisplay();
+      }
+
+      // Update eliminated panel
+      updateEliminatedPanel();
+      
+      // Check if we have a final winner
+      if (participants.length === 1) {
+        // We have a winner!
+        const finalWinner = participants[0];
+        spinBtn.disabled = true;
+        
+        // Show eliminated message briefly, then show final winner
+        winnerDisplay.classList.remove('hidden');
+        winnerText.textContent = `💀 ${winner.name} eliminado 💀`;
+        winnerText.className = 'text-2xl font-bold text-red-400';
+        winnerColor.textContent = `Ronda ${roundNumber}`;
+        winnerColor.className = 'text-lg mt-2 text-gray-400';
+        
+        playEliminationSound();
+        
+        // After delay, show final winner
+        setTimeout(() => {
+          winnerDisplay.classList.add('hidden');
+          finalWinnerPanel.classList.remove('hidden');
+          finalWinnerName.textContent = finalWinner.name;
+          playVictoryFanfare();
+        }, 2000);
+        
+      } else if (participants.length === 0) {
+        // Everyone eliminated (shouldn't happen but just in case)
+        spinBtn.disabled = true;
+        winnerDisplay.classList.remove('hidden');
+        winnerText.textContent = '💀 ¡Todos eliminados! 💀';
+        winnerText.className = 'text-2xl font-bold text-red-400';
+        winnerColor.textContent = 'No hay ganador';
+        winnerColor.className = 'text-lg mt-2 text-gray-400';
+      } else {
+        // Continue the game
+        roundNumber++;
+        updateSuddenDeathStatus();
+        
+        winnerDisplay.classList.remove('hidden');
+        winnerText.textContent = `💀 ${winner.name} eliminado 💀`;
+        winnerText.className = 'text-2xl font-bold text-red-400';
+        winnerColor.textContent = `Ronda ${roundNumber - 1} - Quedan ${participants.length}`;
+        winnerColor.className = 'text-lg mt-2 text-gray-400';
+        
+        playEliminationSound();
+        spinBtn.disabled = false;
+      }
+      
+      // Update UI
+      updateUI();
+      
+    } else {
+      // Normal mode (or green in sudden death)
+      spinBtn.disabled = false;
+      
+      // Show winner
+      winnerDisplay.classList.remove('hidden');
+      
+      if (color === 'green' && suddenDeathActive) {
+        winnerText.textContent = `🟢 ¡VERDE! Nadie eliminado 🟢`;
+        winnerText.className = 'text-2xl font-bold text-green-400';
+        winnerColor.textContent = 'La suerte les salva esta ronda';
+        winnerColor.className = 'text-lg mt-2 text-gray-400';
+      } else {
+        winnerText.textContent = `🎉 ${winner.name} 🎉`;
+        winnerText.className = 'text-3xl font-bold animate-pulse';
+        
+        const colorEmoji = color === 'red' ? '🔴 ROJO' : color === 'green' ? '🟢 VERDE' : '⚫ NEGRO';
+        winnerColor.textContent = colorEmoji;
+        winnerColor.className = `text-lg mt-2 ${color === 'red' ? 'text-red-400' : color === 'green' ? 'text-green-400' : 'text-gray-400'}`;
+      }
+      
+      playWinSound();
+    }
+
+    // Add to history
+    history.unshift({
+      name: winner.name,
+      color: color,
+      timestamp: new Date()
+    });
+
+    updateHistory();
+  }
+
+  // Update eliminated panel
+  function updateEliminatedPanel() {
+    if (eliminatedParticipants.length > 0) {
+      eliminatedPanel.classList.remove('hidden');
+      eliminatedList.innerHTML = eliminatedParticipants.map((p, i) => `
+        <div class="px-2 py-1 bg-red-900/50 rounded text-xs text-red-300 flex items-center gap-1">
+          <span class="text-gray-500">${i + 1}.</span>
+          <span>${escapeHtml(p.name)}</span>
+        </div>
+      `).join('');
+    } else {
+      eliminatedPanel.classList.add('hidden');
+    }
+  }
+
+  // Update sudden death status
+  function updateSuddenDeathStatus() {
+    if (suddenDeathActive) {
+      suddenDeathStatus.classList.remove('hidden');
+      roundNumberEl.textContent = roundNumber.toString();
+      remainingCountEl.textContent = participants.length.toString();
+    } else {
+      suddenDeathStatus.classList.add('hidden');
+    }
+  }
+
+  // Reset sudden death game
+  function resetSuddenDeath() {
+    roundNumber = 1;
+    eliminatedParticipants = [];
+    
+    // Restore original participants
+    if (originalParticipants.length > 0) {
+      participants = originalParticipants.map((p, i) => ({
+        ...p,
+        id: crypto.randomUUID(),
+        color: (i % 2 === 0 ? 'red' : 'black') as 'red' | 'black'
+      }));
+    }
+    
+    // Hide panels
+    finalWinnerPanel.classList.add('hidden');
+    eliminatedPanel.classList.add('hidden');
+    winnerDisplay.classList.add('hidden');
+    
+    // Update UI
+    updateSuddenDeathStatus();
+    updateEliminatedPanel();
+    updateUI();
+  }
+
+  // Update history display
+  function updateHistory() {
+    // Update counts
+    const redCount = history.filter(h => h.color === 'red').length;
+    const blackCount = history.filter(h => h.color === 'black').length;
+    const greenCount = history.filter(h => h.color === 'green').length;
+    
+    redCountEl.textContent = redCount.toString();
+    blackCountEl.textContent = blackCount.toString();
+    greenCountEl.textContent = greenCount.toString();
+
+    // Update history list
+    if (history.length === 0) {
+      historyList.innerHTML = '<p class="text-gray-500 text-center text-sm">Sin resultados aún</p>';
+    } else {
+      historyList.innerHTML = history.slice(0, 20).map((h, i) => `
+        <div class="flex items-center gap-2 p-2 rounded-lg ${h.color === 'red' ? 'bg-red-900/30' : h.color === 'green' ? 'bg-green-900/30' : 'bg-gray-700/30'}">
+          <span class="text-lg">${h.color === 'red' ? '🔴' : h.color === 'green' ? '🟢' : '⚫'}</span>
+          <span class="flex-1 truncate text-sm">${escapeHtml(h.name)}</span>
+          <span class="text-xs text-gray-500">#${history.length - i}</span>
+        </div>
+      `).join('');
+    }
+  }
+
+  // Sound effects - Crystal/Glass click sound
+  function getAudioContext(): AudioContext {
+    if (!audioCtx) {
+      audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
+    }
+    return audioCtx;
+  }
+
+  function playCrystalClick() {
+    try {
+      const ctx = getAudioContext();
+      const now = ctx.currentTime;
+      
+      // Create multiple oscillators for crystal/glass effect
+      const frequencies = [2400, 3200, 4000, 4800]; // High frequencies for crystal sound
+      
+      frequencies.forEach((freq, i) => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        const filter = ctx.createBiquadFilter();
+        
+        // High-pass filter for crystal clarity
+        filter.type = 'highpass';
+        filter.frequency.value = 2000;
+        filter.Q.value = 2;
+        
+        osc.connect(filter);
+        filter.connect(gain);
+        gain.connect(ctx.destination);
+        
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(freq, now);
+        osc.frequency.exponentialRampToValueAtTime(freq * 0.8, now + 0.05);
+        
+        // Quick attack, fast decay for click
+        gain.gain.setValueAtTime(0, now);
+        gain.gain.linearRampToValueAtTime(0.08 - i * 0.015, now + 0.002);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.08);
+        
+        osc.start(now);
+        osc.stop(now + 0.1);
+      });
+      
+      // Add a subtle "ping" for the metallic quality
+      const pingOsc = ctx.createOscillator();
+      const pingGain = ctx.createGain();
+      
+      pingOsc.connect(pingGain);
+      pingGain.connect(ctx.destination);
+      
+      pingOsc.type = 'triangle';
+      pingOsc.frequency.setValueAtTime(5000, now);
+      pingOsc.frequency.exponentialRampToValueAtTime(3000, now + 0.03);
+      
+      pingGain.gain.setValueAtTime(0.03, now);
+      pingGain.gain.exponentialRampToValueAtTime(0.001, now + 0.05);
+      
+      pingOsc.start(now);
+      pingOsc.stop(now + 0.06);
+    } catch (e) {}
+  }
+
+  function playSpinSound() {
+    // Now handled by playCrystalClick during animation
+  }
+
+  // Troll mode fake stop sound - teasing "almost" sound
+  function playTrollFakeStopSound() {
+    try {
+      const ctx = getAudioContext();
+      const now = ctx.currentTime;
+      
+      // Descending "nope" sound
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      
+      osc.type = 'sawtooth';
+      osc.frequency.setValueAtTime(600, now);
+      osc.frequency.exponentialRampToValueAtTime(200, now + 0.2);
+      
+      gain.gain.setValueAtTime(0.15, now);
+      gain.gain.exponentialRampToValueAtTime(0.01, now + 0.25);
+      
+      osc.start(now);
+      osc.stop(now + 0.3);
+      
+      // Add buzzer effect
+      const buzz = ctx.createOscillator();
+      const buzzGain = ctx.createGain();
+      
+      buzz.connect(buzzGain);
+      buzzGain.connect(ctx.destination);
+      
+      buzz.type = 'square';
+      buzz.frequency.value = 100;
+      
+      buzzGain.gain.setValueAtTime(0.05, now + 0.1);
+      buzzGain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+      
+      buzz.start(now + 0.1);
+      buzz.stop(now + 0.35);
+    } catch (e) {}
+  }
+
+  // Mystery reveal sound - dramatic unveiling
+  function playMysteryRevealSound() {
+    try {
+      const ctx = getAudioContext();
+      const now = ctx.currentTime;
+      
+      // Ascending mystery reveal
+      const notes = [261.63, 329.63, 392.00, 523.25, 659.25]; // C4, E4, G4, C5, E5
+      
+      notes.forEach((freq, i) => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        
+        osc.type = 'sine';
+        osc.frequency.value = freq;
+        
+        const startTime = now + i * 0.08;
+        gain.gain.setValueAtTime(0, startTime);
+        gain.gain.linearRampToValueAtTime(0.15, startTime + 0.02);
+        gain.gain.exponentialRampToValueAtTime(0.01, startTime + 0.15);
+        
+        osc.start(startTime);
+        osc.stop(startTime + 0.2);
+      });
+      
+      // Sparkle effect
+      for (let i = 0; i < 5; i++) {
+        const sparkle = ctx.createOscillator();
+        const sparkleGain = ctx.createGain();
+        
+        sparkle.connect(sparkleGain);
+        sparkleGain.connect(ctx.destination);
+        
+        sparkle.type = 'sine';
+        sparkle.frequency.value = 2000 + Math.random() * 2000;
+        
+        const sTime = now + 0.3 + i * 0.05;
+        sparkleGain.gain.setValueAtTime(0.05, sTime);
+        sparkleGain.gain.exponentialRampToValueAtTime(0.001, sTime + 0.1);
+        
+        sparkle.start(sTime);
+        sparkle.stop(sTime + 0.15);
+      }
+    } catch (e) {}
+  }
+
+  function playWinSound() {
+    try {
+      const audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
+      
+      // Celebration sound
+      const notes = [523.25, 659.25, 783.99, 1046.50]; // C5, E5, G5, C6
+      
+      notes.forEach((freq, i) => {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        
+        osc.frequency.value = freq;
+        osc.type = 'sine';
+        gain.gain.setValueAtTime(0.2, audioCtx.currentTime + i * 0.1);
+        gain.gain.setTargetAtTime(0.01, audioCtx.currentTime + i * 0.1 + 0.1, 0.1);
+        
+        osc.start(audioCtx.currentTime + i * 0.1);
+        osc.stop(audioCtx.currentTime + i * 0.1 + 0.3);
+      });
+    } catch (e) {}
+  }
+
+  // Elimination sound - dark, descending tone
+  function playEliminationSound() {
+    try {
+      const ctx = getAudioContext();
+      const now = ctx.currentTime;
+      
+      // Descending "doom" sound
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      
+      osc.type = 'sawtooth';
+      osc.frequency.setValueAtTime(400, now);
+      osc.frequency.exponentialRampToValueAtTime(100, now + 0.5);
+      
+      gain.gain.setValueAtTime(0.15, now);
+      gain.gain.exponentialRampToValueAtTime(0.01, now + 0.5);
+      
+      osc.start(now);
+      osc.stop(now + 0.6);
+      
+      // Add a low rumble
+      const rumble = ctx.createOscillator();
+      const rumbleGain = ctx.createGain();
+      
+      rumble.connect(rumbleGain);
+      rumbleGain.connect(ctx.destination);
+      
+      rumble.type = 'sine';
+      rumble.frequency.value = 60;
+      
+      rumbleGain.gain.setValueAtTime(0.1, now);
+      rumbleGain.gain.exponentialRampToValueAtTime(0.01, now + 0.4);
+      
+      rumble.start(now);
+      rumble.stop(now + 0.5);
+    } catch (e) {}
+  }
+
+  // Victory fanfare for final winner
+  function playVictoryFanfare() {
+    try {
+      const ctx = getAudioContext();
+      const now = ctx.currentTime;
+      
+      // Triumphant fanfare notes
+      const fanfare = [
+        { freq: 523.25, time: 0, duration: 0.15 },     // C5
+        { freq: 659.25, time: 0.15, duration: 0.15 },  // E5
+        { freq: 783.99, time: 0.3, duration: 0.15 },   // G5
+        { freq: 1046.50, time: 0.45, duration: 0.3 },  // C6
+        { freq: 783.99, time: 0.75, duration: 0.1 },   // G5
+        { freq: 1046.50, time: 0.85, duration: 0.5 },  // C6 (long)
+      ];
+      
+      fanfare.forEach(({ freq, time, duration }) => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        
+        osc.type = 'triangle';
+        osc.frequency.value = freq;
+        
+        gain.gain.setValueAtTime(0, now + time);
+        gain.gain.linearRampToValueAtTime(0.2, now + time + 0.02);
+        gain.gain.setValueAtTime(0.2, now + time + duration - 0.05);
+        gain.gain.exponentialRampToValueAtTime(0.01, now + time + duration);
+        
+        osc.start(now + time);
+        osc.stop(now + time + duration + 0.1);
+      });
+      
+      // Add harmonics for richness
+      fanfare.forEach(({ freq, time, duration }) => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        
+        osc.type = 'sine';
+        osc.frequency.value = freq * 2; // Octave up
+        
+        gain.gain.setValueAtTime(0, now + time);
+        gain.gain.linearRampToValueAtTime(0.08, now + time + 0.02);
+        gain.gain.exponentialRampToValueAtTime(0.01, now + time + duration);
+        
+        osc.start(now + time);
+        osc.stop(now + time + duration + 0.1);
+      });
+    } catch (e) {}
+  }
+
+  // Speed change listeners - disable troll mode at 1s
+  document.querySelectorAll<HTMLInputElement>('input[name="casino-speed"]').forEach(radio => {
+    radio.addEventListener('change', () => {
+      if (radio.value === '1' && radio.checked) {
+        const trollCheckbox = document.getElementById('troll-mode') as HTMLInputElement;
+        if (trollCheckbox) {
+          trollCheckbox.checked = false;
+          trollCheckbox.disabled = true;
+        }
+      } else if (radio.checked) {
+        const trollCheckbox = document.getElementById('troll-mode') as HTMLInputElement;
+        if (trollCheckbox) {
+          trollCheckbox.disabled = false;
+        }
+      }
+    });
+  });
+
+  // Event listeners
+  addBtn.addEventListener('click', () => {
+    addParticipant(participantInput.value);
+    participantInput.value = '';
+    participantInput.focus();
+  });
+
+  participantInput.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') {
+      addParticipant(participantInput.value);
+      participantInput.value = '';
+    }
+  });
+
+  bulkAddBtn.addEventListener('click', () => {
+    const names = bulkInput.value.split('\n');
+    names.forEach(name => addParticipant(name));
+    bulkInput.value = '';
+  });
+
+  clearAllBtn.addEventListener('click', () => {
+    if (confirm('¿Eliminar todos los participantes?')) {
+      participants = [];
+      eliminatedParticipants = [];
+      roundNumber = 1;
+      updateEliminatedPanel();
+      updateSuddenDeathStatus();
+      updateUI();
+    }
+  });
+
+  clearHistoryBtn.addEventListener('click', () => {
+    history = [];
+    updateHistory();
+  });
+
+  spinBtn.addEventListener('click', spin);
+
+  enableGreen.addEventListener('change', () => {
+    drawStrip();
+  });
+
+  // Sudden Death Mode toggle
+  suddenDeathMode.addEventListener('change', () => {
+    suddenDeathActive = suddenDeathMode.checked;
+    
+    if (suddenDeathActive) {
+      // Store original participants for reset
+      originalParticipants = participants.map(p => ({ ...p }));
+      roundNumber = 1;
+      eliminatedParticipants = [];
+      updateEliminatedPanel();
+    } else {
+      // Reset to original if turning off
+      if (originalParticipants.length > 0 && participants.length < originalParticipants.length) {
+        if (confirm('¿Restaurar participantes eliminados?')) {
+          participants = originalParticipants.map((p, i) => ({
+            ...p,
+            id: crypto.randomUUID(),
+            color: (i % 2 === 0 ? 'red' : 'black') as 'red' | 'black'
+          }));
+        }
+      }
+      eliminatedParticipants = [];
+      roundNumber = 1;
+      finalWinnerPanel.classList.add('hidden');
+      updateEliminatedPanel();
+    }
+    
+    updateSuddenDeathStatus();
+    updateUI();
+  });
+
+  // Reset sudden death button
+  resetSuddenDeathBtn.addEventListener('click', () => {
+    resetSuddenDeath();
+  });
+
+  // Troll Mode toggle
+  trollModeCheckbox.addEventListener('change', () => {
+    trollModeActive = trollModeCheckbox.checked;
+    // Troll and Mystery can coexist now
+    drawStrip();
+  });
+
+  // Mystery Mode toggle
+  mysteryModeCheckbox.addEventListener('change', () => {
+    mysteryModeActive = mysteryModeCheckbox.checked;
+    if (mysteryModeActive) {
+      // Shuffle colors and positions when activated
+      initMysteryDisplay();
+    }
+    drawStrip();
+  });
+
+  // Provably Fair Verifier
+  const verifySeedInput = document.getElementById('verify-seed-input') as HTMLInputElement;
+  const verifySeedBtn = document.getElementById('verify-seed-btn') as HTMLButtonElement;
+  const verifyParticipantsCount = document.getElementById('verify-participants-count') as HTMLInputElement;
+  const verifyGreenEnabled = document.getElementById('verify-green-enabled') as HTMLInputElement;
+  const verifyResults = document.getElementById('verify-results') as HTMLDivElement;
+
+  function verifySeed() {
+    const seedHex = verifySeedInput.value.trim().toLowerCase();
+    const participantsCount = parseInt(verifyParticipantsCount.value) || 0;
+    const greenEnabled = verifyGreenEnabled.checked;
+
+    // Validate seed
+    if (!/^[0-9a-f]{1,8}$/i.test(seedHex)) {
+      verifyResults.innerHTML = `
+        <div class="text-red-400 text-center py-2">
+          ❌ Semilla inválida. Debe ser hexadecimal (0-9, a-f), máx 8 caracteres.
+        </div>
+      `;
+      return;
+    }
+
+    // Validate participants count
+    if (participantsCount < 2) {
+      verifyResults.innerHTML = `
+        <div class="text-red-400 text-center py-2">
+          ❌ Introduce al menos 2 participantes.
+        </div>
+      `;
+      return;
+    }
+
+    // Calculate the result using the same algorithm
+    const seedPadded = seedHex.padStart(8, '0');
+    const seedValue = parseInt(seedPadded, 16);
+    const randomValue = seedValue / (0xFFFFFFFF + 1);
+
+    let winnerIndex: number;
+    let winnerColor: string;
+    let greenWins = false;
+
+    if (greenEnabled && randomValue < 0.027) {
+      greenWins = true;
+      winnerIndex = -1;
+      winnerColor = 'verde';
+    } else {
+      const adjustedRandom = greenEnabled ? (randomValue - 0.027) / 0.973 : randomValue;
+      winnerIndex = Math.floor(adjustedRandom * participantsCount);
+      winnerIndex = Math.min(winnerIndex, participantsCount - 1);
+      winnerColor = winnerIndex % 2 === 0 ? 'rojo' : 'negro';
+    }
+
+    // Display results
+    verifyResults.innerHTML = `
+      <div class="space-y-2">
+        <div class="flex justify-between border-b border-gray-700 pb-1">
+          <span class="text-gray-400">Semilla:</span>
+          <span class="text-green-400">${seedPadded}</span>
+        </div>
+        <div class="flex justify-between border-b border-gray-700 pb-1">
+          <span class="text-gray-400">Valor decimal:</span>
+          <span class="text-blue-400">${seedValue.toLocaleString()}</span>
+        </div>
+        <div class="flex justify-between border-b border-gray-700 pb-1">
+          <span class="text-gray-400">Valor normalizado:</span>
+          <span class="text-blue-400">${randomValue.toFixed(10)}</span>
+        </div>
+        ${greenEnabled ? `
+        <div class="flex justify-between border-b border-gray-700 pb-1">
+          <span class="text-gray-400">¿Gana verde? (< 0.027):</span>
+          <span class="${greenWins ? 'text-green-400' : 'text-gray-400'}">${greenWins ? 'SÍ ✓' : 'NO'}</span>
+        </div>
+        ` : ''}
+        <div class="flex justify-between border-b border-gray-700 pb-1">
+          <span class="text-gray-400">Participantes:</span>
+          <span class="text-white">${participantsCount}</span>
+        </div>
+        <div class="mt-3 p-3 rounded-lg ${greenWins ? 'bg-green-900/50 border border-green-600' : winnerColor === 'rojo' ? 'bg-red-900/50 border border-red-600' : 'bg-gray-700/50 border border-gray-500'}">
+          <div class="text-center">
+            <div class="text-xs text-gray-400 mb-1">GANADOR</div>
+            <div class="text-xl font-bold ${greenWins ? 'text-green-400' : winnerColor === 'rojo' ? 'text-red-400' : 'text-gray-300'}">
+              ${greenWins ? '🟢 VERDE (0)' : `Participante #${winnerIndex + 1}`}
+            </div>
+            <div class="text-sm mt-1 ${winnerColor === 'rojo' ? 'text-red-400' : winnerColor === 'negro' ? 'text-gray-400' : 'text-green-400'}">
+              ${greenWins ? 'Todos pierden' : (winnerColor === 'rojo' ? '🔴 Rojo' : '⚫ Negro')}
+            </div>
+          </div>
+        </div>
+        <div class="text-xs text-gray-500 text-center mt-2">
+          Fórmula: floor(${greenEnabled && !greenWins ? `(${randomValue.toFixed(6)} - 0.027) / 0.973` : randomValue.toFixed(6)} × ${participantsCount}) = ${greenWins ? 'N/A' : winnerIndex}
+        </div>
+      </div>
+    `;
+  }
+
+  verifySeedBtn.addEventListener('click', verifySeed);
+  verifySeedInput.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') verifySeed();
+  });
+
+  // Initialize
+  updateUI();
+  updateHistory();
+</script>

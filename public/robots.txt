@@ -1,0 +1,33 @@
+# robots.txt para RuletaSorteos.es
+# https://ruletasorteos.es
+
+User-agent: *
+Allow: /
+Allow: /casino
+Allow: /twitter
+
+# Sitemap
+Sitemap: https://ruletasorteos.es/sitemap-index.xml
+
+# Crawl-delay para ser amigables con los bots
+Crawl-delay: 1
+
+# Bloquear acceso a archivos de configuración
+Disallow: /site.webmanifest
+Disallow: /_astro/
+
+# Permitir recursos importantes para compartir
+Allow: /favicon.svg
+Allow: /logo.svg
+Allow: /og-image.svg
+Allow: /apple-touch-icon.svg
+
+# Específico para bots de IA (opcional - puedes ajustar)
+User-agent: GPTBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: Google-Extended
+Allow: /

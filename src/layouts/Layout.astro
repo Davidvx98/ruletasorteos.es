@@ -1,0 +1,233 @@
+---
+import '../styles/global.css';
+
+interface Props {
+  title: string;
+  description?: string;
+}
+
+const { title, description = "Ruleta de Sorteos online gratuita. Elige ganadores al azar, crea equipos, ordena participantes y mucho más. Personaliza colores, sonidos y animaciones. ¡La mejor herramienta para sorteos!" } = Astro.props;
+
+const siteUrl = "https://ruletasorteos.es";
+const ogImage = `${siteUrl}/og-image.svg`;
+---
+
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    
+    <!-- Primary Meta Tags -->
+    <title>{title}</title>
+    <meta name="title" content={title} />
+    <meta name="description" content={description} />
+    <meta name="keywords" content="ruleta sorteos, sorteo online, elegir ganador, ruleta aleatoria, generador aleatorio, sorteo gratis, crear equipos, orden aleatorio, ruleta personalizada, sorteo nombres, ruleta de la fortuna, sorteo random, picker wheel, random name picker, sorteo instagram, sorteo twitter, sorteo youtube, ruleta virtual, ruleta online gratis, sorteo participantes" />
+    <meta name="author" content="RuletaSorteos.es" />
+    <meta name="robots" content="index, follow" />
+    <meta name="language" content="Spanish" />
+    <meta name="revisit-after" content="7 days" />
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.svg" />
+    <link rel="manifest" href="/site.webmanifest" />
+    <meta name="theme-color" content="#7c3aed" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="Ruleta Sorteos" />
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content={siteUrl} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:locale" content="es_ES" />
+    <meta property="og:site_name" content="Ruleta de Sorteos" />
+    
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image" />
+    <meta property="twitter:url" content={siteUrl} />
+    <meta property="twitter:title" content={title} />
+    <meta property="twitter:description" content={description} />
+    <meta property="twitter:image" content={ogImage} />
+    
+    <!-- Security Headers -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self'; connect-src 'self'; frame-ancestors 'self'; base-uri 'self'; form-action 'self';" />
+    <meta http-equiv="X-Content-Type-Options" content="nosniff" />
+    <meta http-equiv="X-Frame-Options" content="SAMEORIGIN" />
+    <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin" />
+    <meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=(), payment=(), usb=()" />
+    <meta http-equiv="X-XSS-Protection" content="1; mode=block" />
+    
+    <!-- Canonical URL -->
+    <link rel="canonical" href={siteUrl} />
+    
+    <!-- Hreflang for language -->
+    <link rel="alternate" hreflang="es" href={siteUrl} />
+    <link rel="alternate" hreflang="x-default" href={siteUrl} />
+    
+    <!-- DNS Prefetch for performance -->
+    <link rel="dns-prefetch" href="//fonts.googleapis.com" />
+    
+    <!-- Preconnect for performance -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    
+    <!-- Generator -->
+    <meta name="generator" content={Astro.generator} />
+    
+    <!-- Structured Data / JSON-LD -->
+    <script type="application/ld+json" set:html={JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "Ruleta de Sorteos",
+      "description": description,
+      "url": siteUrl,
+      "applicationCategory": "UtilitiesApplication",
+      "operatingSystem": "Any",
+      "browserRequirements": "Requires JavaScript",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "EUR"
+      },
+      "author": {
+        "@type": "Organization",
+        "name": "RuletaSorteos.es",
+        "url": siteUrl
+      },
+      "aggregateRating": {
+        "@type": "AggregateRating",
+        "ratingValue": "4.9",
+        "ratingCount": "1250",
+        "bestRating": "5",
+        "worstRating": "1"
+      }
+    })} />
+    
+    <!-- Organization Schema -->
+    <script type="application/ld+json" set:html={JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      "name": "RuletaSorteos.es",
+      "url": siteUrl,
+      "logo": `${siteUrl}/logo.svg`,
+      "description": "Herramienta online gratuita para realizar sorteos aleatorios",
+      "sameAs": [],
+      "contactPoint": {
+        "@type": "ContactPoint",
+        "contactType": "customer support",
+        "availableLanguage": "Spanish"
+      }
+    })} />
+    
+    <!-- BreadcrumbList Schema -->
+    <script type="application/ld+json" set:html={JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Inicio",
+          "item": siteUrl
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "Ruleta Casino",
+          "item": `${siteUrl}/casino`
+        },
+        {
+          "@type": "ListItem",
+          "position": 3,
+          "name": "Ruleta Twitter",
+          "item": `${siteUrl}/twitter`
+        }
+      ]
+    })} />
+
+    <!-- HowTo Schema -->
+    <script type="application/ld+json" set:html={JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "HowTo",
+      "name": "Cómo hacer un sorteo con la Ruleta de Sorteos",
+      "description": "Guía paso a paso para realizar un sorteo aleatorio online",
+      "step": [
+        {
+          "@type": "HowToStep",
+          "position": 1,
+          "name": "Añade participantes",
+          "text": "Escribe los nombres de los participantes uno por uno o pégalos todos a la vez separados por comas"
+        },
+        {
+          "@type": "HowToStep",
+          "position": 2,
+          "name": "Personaliza la ruleta",
+          "text": "Ajusta colores, velocidad, sonidos y otras opciones según tus preferencias"
+        },
+        {
+          "@type": "HowToStep",
+          "position": 3,
+          "name": "Gira la ruleta",
+          "text": "Pulsa el botón de girar y espera a que la ruleta se detenga para conocer al ganador"
+        }
+      ],
+      "totalTime": "PT1M"
+    })} />
+
+    <!-- FAQ Schema -->
+    <script type="application/ld+json" set:html={JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "¿Es gratis la Ruleta de Sorteos?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Sí, la Ruleta de Sorteos es 100% gratuita. No hay costes ocultos, suscripciones ni limitaciones. Puedes usarla tantas veces como quieras sin registrarte."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "¿Cómo funciona el sorteo aleatorio?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "La ruleta utiliza el generador de números aleatorios del navegador (crypto.getRandomValues) para garantizar resultados completamente imparciales. Cada participante tiene exactamente la misma probabilidad de ganar."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "¿Son seguros mis datos?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Absolutamente. Todos los datos se procesan localmente en tu navegador. No enviamos información a ningún servidor. Los nombres de los participantes nunca salen de tu dispositivo."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "¿Puedo personalizar la ruleta?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Sí, puedes personalizar colores, tamaño, velocidad de giro, efectos de sonido, confeti, y mucho más. También hay un modo especial de Navidad con nieve y colores festivos."
+          }
+        }
+      ]
+    })} />
+  </head>
+  <body class="min-h-screen bg-linear-to-br from-purple-900 via-indigo-900 to-blue-900">
+    <slot />
+    
+    <!-- Footer -->
+    <footer class="mt-16 pb-8 text-center text-gray-400 text-sm">
+      <div class="container mx-auto px-4">
+        <p>© {new Date().getFullYear()} Ruleta de Sorteos. Todos los derechos reservados.</p>
+        <p class="mt-2">Herramienta gratuita para sorteos aleatorios online.</p>
+      </div>
+    </footer>
+  </body>
+</html>

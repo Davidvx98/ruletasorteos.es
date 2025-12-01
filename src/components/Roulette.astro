@@ -1,0 +1,3441 @@
+---
+// Roulette component - Server-rendered structure, client-side interactivity
+// Optimized for performance with large participant lists
+---
+
+<div class="max-w-4xl mx-auto relative">
+  <!-- Christmas Snowflakes Container -->
+  <div id="snowContainer" class="fixed inset-0 pointer-events-none z-0 overflow-hidden"></div>
+  
+  <!-- Christmas Decorations -->
+  <div id="christmasDecorations" class="hidden">
+    <div class="fixed top-0 left-0 text-4xl animate-bounce" style="animation-delay: 0s;">🎄</div>
+    <div class="fixed top-0 right-0 text-4xl animate-bounce" style="animation-delay: 0.5s;">🎄</div>
+    <div class="fixed top-2 left-1/4 text-2xl animate-pulse">⭐</div>
+    <div class="fixed top-2 right-1/4 text-2xl animate-pulse" style="animation-delay: 0.3s;">⭐</div>
+    <div class="fixed top-4 left-1/2 transform -translate-x-1/2 text-3xl">🎅</div>
+  </div>
+  
+  <!-- Controls Section -->
+  <div class="bg-white/10 backdrop-blur-sm rounded-2xl p-6 mb-8">
+    <h2 class="text-xl font-semibold text-white mb-4">👥 Participantes</h2>
+    
+    <!-- Add participant form -->
+    <div class="flex gap-2 mb-4">
+      <input 
+        type="text" 
+        id="participantInput" 
+        placeholder="Nombre del participante"
+        maxlength="50"
+        autocomplete="off"
+        class="flex-1 px-4 py-3 rounded-xl bg-white/20 text-white placeholder-gray-300 border border-white/30 focus:outline-none focus:border-purple-400 focus:ring-2 focus:ring-purple-400/50"
+      />
+      <button 
+        id="addBtn"
+        class="px-6 py-3 bg-green-500 hover:bg-green-600 text-white font-semibold rounded-xl transition-all duration-200 hover:scale-105"
+        aria-label="Añadir participante"
+      >
+        Añadir
+      </button>
+    </div>
+
+    <!-- Bulk add participants -->
+    <div class="flex gap-2 mb-4">
+      <input 
+        type="text" 
+        id="bulkInput" 
+        placeholder="Añadir varios: nombre1, nombre2, nombre3..."
+        autocomplete="off"
+        class="flex-1 px-4 py-3 rounded-xl bg-white/20 text-white placeholder-gray-300 border border-white/30 focus:outline-none focus:border-purple-400 focus:ring-2 focus:ring-purple-400/50"
+      />
+      <button 
+        id="bulkAddBtn"
+        class="px-6 py-3 bg-emerald-500 hover:bg-emerald-600 text-white font-semibold rounded-xl transition-all duration-200 hover:scale-105"
+        aria-label="Añadir lista de participantes"
+      >
+        Añadir Lista
+      </button>
+    </div>
+
+    <!-- Import/Export buttons -->
+    <div class="flex gap-2 mb-4">
+      <button 
+        id="importBtn"
+        class="flex-1 px-4 py-2 bg-blue-500/20 hover:bg-blue-500/40 text-blue-300 hover:text-white text-sm font-medium rounded-xl transition-all border border-blue-500/30"
+        aria-label="Importar participantes"
+      >
+        📥 Importar
+      </button>
+      <button 
+        id="exportBtn"
+        class="flex-1 px-4 py-2 bg-green-500/20 hover:bg-green-500/40 text-green-300 hover:text-white text-sm font-medium rounded-xl transition-all border border-green-500/30"
+        aria-label="Exportar participantes"
+      >
+        📤 Exportar
+      </button>
+      <button 
+        id="saveLocalBtn"
+        class="flex-1 px-4 py-2 bg-purple-500/20 hover:bg-purple-500/40 text-purple-300 hover:text-white text-sm font-medium rounded-xl transition-all border border-purple-500/30"
+        aria-label="Guardar en navegador"
+      >
+        💾 Guardar
+      </button>
+      <button 
+        id="loadLocalBtn"
+        class="flex-1 px-4 py-2 bg-yellow-500/20 hover:bg-yellow-500/40 text-yellow-300 hover:text-white text-sm font-medium rounded-xl transition-all border border-yellow-500/30"
+        aria-label="Cargar guardado"
+      >
+        📂 Cargar
+      </button>
+    </div>
+    <input type="file" id="fileInput" accept=".txt,.csv,.json" class="hidden" />
+    
+    <!-- Participants list with virtual scrolling for large lists -->
+    <div id="participantsList" class="flex flex-wrap gap-2 min-h-10 max-h-[200px] overflow-y-auto">
+      <!-- Participants will be added here dynamically -->
+    </div>
+    
+    <!-- Participant counter and warnings -->
+    <div class="mt-3 flex items-center justify-between">
+      <div id="participantCounter" class="text-gray-300 text-sm"></div>
+      <div id="participantWarning" class="text-yellow-400 text-sm hidden"></div>
+    </div>
+  </div>
+
+  <!-- Customization Section -->
+  <div class="bg-white/10 backdrop-blur-sm rounded-2xl p-6 mb-6">
+    <div class="flex items-center justify-between mb-4">
+      <h2 class="text-xl font-semibold text-white">🎨 Personalización</h2>
+      <button 
+        id="customizationToggle"
+        class="flex items-center gap-2 px-3 py-1.5 bg-white/10 hover:bg-white/20 text-gray-300 hover:text-white text-sm font-medium rounded-lg transition-all duration-200"
+      >
+        <span>⚙️</span>
+        <span>Opciones</span>
+      </button>
+    </div>
+
+    <div id="customizationPanel" class="hidden space-y-6">
+      <!-- Wheel Size -->
+      <div>
+        <label class="text-white block mb-2">📐 Tamaño de la ruleta</label>
+        <input 
+          type="range" 
+          id="wheelSize" 
+          min="250" 
+          max="500" 
+          value="400"
+          class="w-full accent-purple-500"
+        />
+        <div class="flex justify-between text-gray-400 text-sm mt-1">
+          <span>Pequeña</span>
+          <span id="wheelSizeValue">400px</span>
+          <span>Grande</span>
+        </div>
+      </div>
+
+      <!-- Color Scheme -->
+      <div>
+        <label class="text-white block mb-2">🎨 Esquema de colores</label>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-2">
+          <button class="color-scheme-btn px-3 py-2 rounded-lg border-2 border-purple-500 bg-purple-500/20 text-white text-sm" data-scheme="default">
+            🌈 Predeterminado
+          </button>
+          <button class="color-scheme-btn px-3 py-2 rounded-lg border-2 border-white/30 hover:border-white/50 text-white text-sm" data-scheme="rainbow">
+            🌈 Arcoíris
+          </button>
+          <button class="color-scheme-btn px-3 py-2 rounded-lg border-2 border-white/30 hover:border-white/50 text-white text-sm" data-scheme="pastel">
+            🍬 Pastel
+          </button>
+          <button class="color-scheme-btn px-3 py-2 rounded-lg border-2 border-white/30 hover:border-white/50 text-white text-sm" data-scheme="neon">
+            💡 Neón
+          </button>
+          <button class="color-scheme-btn px-3 py-2 rounded-lg border-2 border-white/30 hover:border-white/50 text-white text-sm" data-scheme="ocean">
+            🌊 Océano
+          </button>
+          <button class="color-scheme-btn px-3 py-2 rounded-lg border-2 border-white/30 hover:border-white/50 text-white text-sm" data-scheme="forest">
+            🌲 Bosque
+          </button>
+          <button class="color-scheme-btn px-3 py-2 rounded-lg border-2 border-white/30 hover:border-white/50 text-white text-sm" data-scheme="sunset">
+            🌅 Atardecer
+          </button>
+          <button class="color-scheme-btn px-3 py-2 rounded-lg border-2 border-white/30 hover:border-white/50 text-white text-sm" data-scheme="monochrome">
+            ⚫ Monocromo
+          </button>
+        </div>
+      </div>
+
+      <!-- Custom Colors -->
+      <div>
+        <label class="text-white block mb-2">🖌️ Colores personalizados</label>
+        <div class="flex flex-wrap gap-2">
+          <div class="flex items-center gap-2">
+            <input type="color" id="customColor1" value="#FF6B6B" class="w-10 h-10 rounded cursor-pointer" />
+            <input type="color" id="customColor2" value="#4ECDC4" class="w-10 h-10 rounded cursor-pointer" />
+            <input type="color" id="customColor3" value="#45B7D1" class="w-10 h-10 rounded cursor-pointer" />
+            <input type="color" id="customColor4" value="#96CEB4" class="w-10 h-10 rounded cursor-pointer" />
+            <input type="color" id="customColor5" value="#FFEAA7" class="w-10 h-10 rounded cursor-pointer" />
+          </div>
+          <button 
+            id="applyCustomColors"
+            class="px-4 py-2 bg-purple-500 hover:bg-purple-600 text-white text-sm rounded-lg transition-all"
+          >
+            Aplicar colores
+          </button>
+        </div>
+      </div>
+
+      <!-- Pointer Style -->
+      <div>
+        <label class="text-white block mb-2">📍 Estilo del puntero</label>
+        <div class="flex flex-wrap gap-2">
+          <button class="pointer-style-btn px-3 py-2 rounded-lg border-2 border-purple-500 bg-purple-500/20 text-white text-sm" data-pointer="triangle">
+            🔺 Triángulo
+          </button>
+          <button class="pointer-style-btn px-3 py-2 rounded-lg border-2 border-white/30 hover:border-white/50 text-white text-sm" data-pointer="arrow">
+            ➡️ Flecha
+          </button>
+          <button class="pointer-style-btn px-3 py-2 rounded-lg border-2 border-white/30 hover:border-white/50 text-white text-sm" data-pointer="diamond">
+            💎 Diamante
+          </button>
+        </div>
+      </div>
+
+      <!-- Pointer Color -->
+      <div>
+        <label class="text-white block mb-2">🎯 Color del puntero</label>
+        <input type="color" id="pointerColor" value="#FACC15" class="w-12 h-10 rounded cursor-pointer" />
+      </div>
+
+      <!-- Center Style -->
+      <div>
+        <label class="text-white block mb-2">⭕ Centro de la ruleta</label>
+        <div class="flex flex-wrap gap-2">
+          <button class="center-style-btn px-3 py-2 rounded-lg border-2 border-purple-500 bg-purple-500/20 text-white text-sm" data-center="classic">
+            ⚫ Clásico
+          </button>
+          <button class="center-style-btn px-3 py-2 rounded-lg border-2 border-white/30 hover:border-white/50 text-white text-sm" data-center="logo">
+            🎰 Logo
+          </button>
+          <button class="center-style-btn px-3 py-2 rounded-lg border-2 border-white/30 hover:border-white/50 text-white text-sm" data-center="spin">
+            🔄 Botón Girar
+          </button>
+          <button class="center-style-btn px-3 py-2 rounded-lg border-2 border-white/30 hover:border-white/50 text-white text-sm" data-center="none">
+            ❌ Sin centro
+          </button>
+        </div>
+      </div>
+
+      <!-- Text Options -->
+      <div>
+        <label class="text-white block mb-2">✏️ Opciones de texto</label>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+          <div>
+            <label class="text-gray-300 text-sm block mb-1">Tamaño de fuente</label>
+            <input 
+              type="range" 
+              id="fontSize" 
+              min="10" 
+              max="24" 
+              value="14"
+              class="w-full accent-purple-500"
+            />
+            <span id="fontSizeValue" class="text-gray-400 text-sm">14px</span>
+          </div>
+          <div>
+            <label class="text-gray-300 text-sm block mb-1">Caracteres máximos</label>
+            <input 
+              type="number" 
+              id="maxChars" 
+              min="5" 
+              max="30" 
+              value="12"
+              class="w-full px-3 py-2 rounded-lg bg-white/20 text-white border border-white/30 focus:outline-none focus:border-purple-400"
+            />
+          </div>
+          <div>
+            <label class="text-gray-300 text-sm block mb-1">Familia de fuente</label>
+            <select 
+              id="fontFamily"
+              class="w-full px-3 py-2 rounded-lg bg-white/20 text-white border border-white/30 focus:outline-none focus:border-purple-400"
+            >
+              <option value="sans-serif" selected>Sans-serif</option>
+              <option value="serif">Serif</option>
+              <option value="monospace">Monospace</option>
+              <option value="cursive">Cursive</option>
+              <option value="Georgia, serif">Georgia</option>
+              <option value="Arial, sans-serif">Arial</option>
+              <option value="Verdana, sans-serif">Verdana</option>
+              <option value="Courier New, monospace">Courier New</option>
+            </select>
+          </div>
+          <div>
+            <label class="text-gray-300 text-sm block mb-1">Color de texto</label>
+            <input 
+              type="color" 
+              id="textColor" 
+              value="#ffffff"
+              class="w-full h-10 rounded cursor-pointer"
+            />
+          </div>
+        </div>
+        <div class="flex flex-wrap gap-4">
+          <label class="flex items-center gap-2 cursor-pointer">
+            <input type="checkbox" id="fontBold" checked class="w-5 h-5 accent-purple-500" />
+            <span class="text-white">Negrita</span>
+          </label>
+          <label class="flex items-center gap-2 cursor-pointer">
+            <input type="checkbox" id="fontItalic" class="w-5 h-5 accent-purple-500" />
+            <span class="text-white">Cursiva</span>
+          </label>
+          <label class="flex items-center gap-2 cursor-pointer">
+            <input type="checkbox" id="textShadow" class="w-5 h-5 accent-purple-500" />
+            <span class="text-white">Sombra de texto</span>
+          </label>
+        </div>
+      </div>
+
+      <!-- Sound Effects -->
+      <div>
+        <label class="text-white block mb-2">🔊 Efectos de sonido</label>
+        <div class="flex flex-wrap gap-4">
+          <label class="flex items-center gap-2 cursor-pointer">
+            <input type="checkbox" id="soundEnabled" class="w-5 h-5 accent-purple-500" />
+            <span class="text-white">Activar sonidos</span>
+          </label>
+          <label class="flex items-center gap-2 cursor-pointer">
+            <input type="checkbox" id="tickSound" class="w-5 h-5 accent-purple-500" />
+            <span class="text-white">Tick al girar</span>
+          </label>
+          <label class="flex items-center gap-2 cursor-pointer">
+            <input type="checkbox" id="winSound" checked class="w-5 h-5 accent-purple-500" />
+            <span class="text-white">Sonido de victoria</span>
+          </label>
+        </div>
+        <div class="mt-2">
+          <label class="text-gray-300 text-sm block mb-1">Volumen</label>
+          <input 
+            type="range" 
+            id="soundVolume" 
+            min="0" 
+            max="100" 
+            value="50"
+            class="w-full accent-purple-500"
+          />
+        </div>
+      </div>
+
+      <!-- Animation Options -->
+      <div>
+        <label class="text-white block mb-2">🎬 Animación</label>
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="text-gray-300 text-sm block mb-1">Vueltas mínimas</label>
+            <input 
+              type="number" 
+              id="minSpins" 
+              min="2" 
+              max="20" 
+              value="5"
+              class="w-full px-3 py-2 rounded-lg bg-white/20 text-white border border-white/30 focus:outline-none focus:border-purple-400"
+            />
+          </div>
+          <div>
+            <label class="text-gray-300 text-sm block mb-1">Vueltas máximas</label>
+            <input 
+              type="number" 
+              id="maxSpins" 
+              min="5" 
+              max="30" 
+              value="10"
+              class="w-full px-3 py-2 rounded-lg bg-white/20 text-white border border-white/30 focus:outline-none focus:border-purple-400"
+            />
+          </div>
+        </div>
+      </div>
+
+      <!-- Easing Effect -->
+      <div>
+        <label class="text-white block mb-2">📈 Efecto de frenado</label>
+        <div class="flex flex-wrap gap-2">
+          <button class="easing-btn px-3 py-2 rounded-lg border-2 border-white/30 hover:border-white/50 text-white text-sm" data-easing="linear">
+            📏 Lineal
+          </button>
+          <button class="easing-btn px-3 py-2 rounded-lg border-2 border-purple-500 bg-purple-500/20 text-white text-sm" data-easing="easeOut">
+            🏎️ Suave
+          </button>
+          <button class="easing-btn px-3 py-2 rounded-lg border-2 border-white/30 hover:border-white/50 text-white text-sm" data-easing="bounce">
+            🏀 Rebote
+          </button>
+          <button class="easing-btn px-3 py-2 rounded-lg border-2 border-white/30 hover:border-white/50 text-white text-sm" data-easing="elastic">
+            🎸 Elástico
+          </button>
+        </div>
+      </div>
+
+      <!-- Confetti -->
+      <div>
+        <label class="text-white block mb-2">🎊 Celebración</label>
+        <div class="flex flex-wrap gap-4">
+          <label class="flex items-center gap-2 cursor-pointer">
+            <input type="checkbox" id="confettiEnabled" checked class="w-5 h-5 accent-purple-500" />
+            <span class="text-white">Confeti al ganar</span>
+          </label>
+          <label class="flex items-center gap-2 cursor-pointer">
+            <input type="checkbox" id="flashEnabled" class="w-5 h-5 accent-purple-500" />
+            <span class="text-white">Destello al ganar</span>
+          </label>
+        </div>
+      </div>
+
+      <!-- Christmas Theme -->
+      <div class="p-4 bg-linear-to-r from-red-500/20 to-green-500/20 rounded-xl border border-red-400/30">
+        <label class="text-white block mb-2">🎄 Tema Navideño</label>
+        <div class="flex flex-wrap gap-4">
+          <label class="flex items-center gap-2 cursor-pointer">
+            <input type="checkbox" id="christmasMode" checked class="w-5 h-5 accent-red-500" />
+            <span class="text-white">Activar modo navideño</span>
+          </label>
+          <label class="flex items-center gap-2 cursor-pointer">
+            <input type="checkbox" id="snowEnabled" checked class="w-5 h-5 accent-blue-300" />
+            <span class="text-white">❄️ Copos de nieve</span>
+          </label>
+          <label class="flex items-center gap-2 cursor-pointer">
+            <input type="checkbox" id="christmasColors" checked class="w-5 h-5 accent-green-500" />
+            <span class="text-white">🎨 Colores festivos</span>
+          </label>
+          <label class="flex items-center gap-2 cursor-pointer">
+            <input type="checkbox" id="christmasSounds" class="w-5 h-5 accent-yellow-400" />
+            <span class="text-white">🔔 Sonidos navideños</span>
+          </label>
+        </div>
+        <p class="text-gray-400 text-xs mt-2">¡Felices fiestas! 🎅🎁</p>
+      </div>
+
+      <!-- Reset Customization -->
+      <div class="pt-4 border-t border-white/10">
+        <button 
+          id="resetCustomization"
+          class="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg transition-all"
+        >
+          🔄 Restablecer valores por defecto
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Game Mode Selection -->
+  <div class="bg-white/10 backdrop-blur-sm rounded-2xl p-6 mb-6">
+    <div class="flex items-center justify-between mb-4">
+      <h2 class="text-xl font-semibold text-white">🎮 Modo de Juego</h2>
+      <button 
+        id="infoToggleBtn"
+        class="flex items-center gap-2 px-3 py-1.5 bg-white/10 hover:bg-white/20 text-gray-300 hover:text-white text-sm font-medium rounded-lg transition-all duration-200"
+        aria-label="Mostrar información"
+      >
+        <span class="text-lg">ℹ️</span>
+        <span>Info</span>
+      </button>
+    </div>
+
+    <!-- Info Panel (hidden by default) -->
+    <div id="infoPanel" class="hidden mb-4 p-4 bg-linear-to-r from-blue-500/20 to-purple-500/20 border border-blue-400/30 rounded-xl">
+      <h3 class="text-white font-semibold mb-3 flex items-center gap-2">
+        <span>📖</span> Guía de Modos y Controles
+      </h3>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+        <div class="space-y-3">
+          <div class="bg-white/5 p-3 rounded-lg">
+            <div class="text-yellow-400 font-semibold mb-1">🏆 Elegir Ganador</div>
+            <p class="text-gray-300">Gira la ruleta o usa selección aleatoria para elegir un único ganador entre todos los participantes.</p>
+          </div>
+          <div class="bg-white/5 p-3 rounded-lg">
+            <div class="text-red-400 font-semibold mb-1">💀 Eliminación</div>
+            <p class="text-gray-300">Modo torneo: elimina participantes uno a uno girando la ruleta hasta que solo quede el campeón final.</p>
+          </div>
+          <div class="bg-white/5 p-3 rounded-lg">
+            <div class="text-blue-400 font-semibold mb-1">👥 Formar Equipos</div>
+            <p class="text-gray-300">Divide automáticamente a los participantes en el número de equipos que elijas (2-10 equipos).</p>
+          </div>
+          <div class="bg-white/5 p-3 rounded-lg">
+            <div class="text-green-400 font-semibold mb-1">📋 Orden Aleatorio</div>
+            <p class="text-gray-300">Establece un orden aleatorio para todos los participantes. Ideal para turnos o presentaciones.</p>
+          </div>
+        </div>
+        <div class="space-y-3">
+          <div class="bg-white/5 p-3 rounded-lg">
+            <div class="text-purple-400 font-semibold mb-1">🎡 Girar Ruleta</div>
+            <p class="text-gray-300">Gira la ruleta con animación visual. El puntero señala al seleccionado cuando para.</p>
+          </div>
+          <div class="bg-white/5 p-3 rounded-lg">
+            <div class="text-cyan-400 font-semibold mb-1">🎲 Selección Aleatoria</div>
+            <p class="text-gray-300">Elige al azar iluminando los nombres de los participantes sin girar la ruleta.</p>
+          </div>
+          <div class="bg-white/5 p-3 rounded-lg">
+            <div class="text-amber-400 font-semibold mb-1">🔀 Mezclar</div>
+            <p class="text-gray-300">Reordena aleatoriamente la posición de los participantes en la ruleta.</p>
+          </div>
+          <div class="bg-white/5 p-3 rounded-lg">
+            <div class="text-gray-400 font-semibold mb-1">⚡ Velocidades</div>
+            <p class="text-gray-300">Elige la duración de la animación: Lenta (7s), Normal (3s) o Rápida (1s).</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+      <label class="game-mode-card cursor-pointer">
+        <input type="radio" name="gameMode" value="winner" checked class="hidden" />
+        <div class="p-4 rounded-xl border-2 border-white/30 hover:border-purple-400 transition-all bg-white/5 hover:bg-white/10">
+          <div class="text-3xl mb-2">🏆</div>
+          <div class="text-white font-semibold">Elegir Ganador</div>
+          <div class="text-gray-400 text-sm">Selecciona un ganador al azar</div>
+        </div>
+      </label>
+      <label class="game-mode-card cursor-pointer">
+        <input type="radio" name="gameMode" value="eliminate" class="hidden" />
+        <div class="p-4 rounded-xl border-2 border-white/30 hover:border-red-400 transition-all bg-white/5 hover:bg-white/10">
+          <div class="text-3xl mb-2">💀</div>
+          <div class="text-white font-semibold">Eliminación</div>
+          <div class="text-gray-400 text-sm">Elimina hasta quedar uno</div>
+        </div>
+      </label>
+      <label class="game-mode-card cursor-pointer">
+        <input type="radio" name="gameMode" value="teams" class="hidden" />
+        <div class="p-4 rounded-xl border-2 border-white/30 hover:border-blue-400 transition-all bg-white/5 hover:bg-white/10">
+          <div class="text-3xl mb-2">👥</div>
+          <div class="text-white font-semibold">Formar Equipos</div>
+          <div class="text-gray-400 text-sm">Divide en equipos aleatorios</div>
+        </div>
+      </label>
+      <label class="game-mode-card cursor-pointer">
+        <input type="radio" name="gameMode" value="order" class="hidden" />
+        <div class="p-4 rounded-xl border-2 border-white/30 hover:border-green-400 transition-all bg-white/5 hover:bg-white/10">
+          <div class="text-3xl mb-2">📋</div>
+          <div class="text-white font-semibold">Orden Aleatorio</div>
+          <div class="text-gray-400 text-sm">Establece un orden al azar</div>
+        </div>
+      </label>
+      <label class="game-mode-card cursor-pointer">
+        <input type="radio" name="gameMode" value="troll" class="hidden" />
+        <div class="p-4 rounded-xl border-2 border-white/30 hover:border-orange-400 transition-all bg-white/5 hover:bg-white/10">
+          <div class="text-3xl mb-2">🤡</div>
+          <div class="text-white font-semibold">Modo Troll</div>
+          <div class="text-gray-400 text-sm">Rebota antes de elegir</div>
+        </div>
+      </label>
+      <label class="game-mode-card cursor-pointer">
+        <input type="radio" name="gameMode" value="mystery" class="hidden" />
+        <div class="p-4 rounded-xl border-2 border-white/30 hover:border-pink-400 transition-all bg-white/5 hover:bg-white/10">
+          <div class="text-3xl mb-2">❓</div>
+          <div class="text-white font-semibold">Misterio</div>
+          <div class="text-gray-400 text-sm">Nombres ocultos hasta el final</div>
+        </div>
+      </label>
+    </div>
+    
+    <!-- Teams configuration (hidden by default) -->
+    <div id="teamsConfig" class="hidden mt-4 p-4 bg-white/5 rounded-xl">
+      <label class="text-white block mb-2">Número de equipos:</label>
+      <input 
+        type="number" 
+        id="teamsCount" 
+        value="2" 
+        min="2" 
+        max="10"
+        class="w-24 px-4 py-2 rounded-xl bg-white/20 text-white border border-white/30 focus:outline-none focus:border-blue-400"
+      />
+    </div>
+  </div>
+  
+  <!-- Roulette Wheel Section -->
+  <div class="flex flex-col items-center mb-8">
+    <!-- Pointer -->
+    <div id="pointerContainer" class="relative z-10 -mb-5">
+      <div id="pointer" class="w-0 h-0 border-l-15 border-r-15 border-t-30 border-l-transparent border-r-transparent border-t-yellow-400 drop-shadow-lg"></div>
+    </div>
+    
+    <!-- Wheel container -->
+    <div class="relative" id="wheelContainer">
+      <canvas 
+        id="rouletteCanvas" 
+        width="400" 
+        height="400"
+        class="rounded-full shadow-2xl shadow-purple-500/30"
+        aria-label="Ruleta de sorteos"
+      ></canvas>
+      <!-- Flash overlay for win effect -->
+      <div id="flashOverlay" class="absolute inset-0 rounded-full bg-white opacity-0 pointer-events-none transition-opacity duration-100"></div>
+    </div>
+    
+    <!-- Confetti container -->
+    <div id="confettiContainer" class="fixed inset-0 pointer-events-none z-50"></div>
+    
+    <!-- Winner/Result display -->
+    <div id="winnerDisplay" class="mt-6 text-center hidden">
+      <div id="winnerCard" class="bg-linear-to-r from-yellow-400 to-orange-500 text-black px-8 py-4 rounded-2xl shadow-lg">
+        <p id="winnerLabel" class="text-sm font-medium mb-1">🎉 ¡Ganador!</p>
+        <p id="winnerName" class="text-2xl font-bold"></p>
+      </div>
+      <button 
+        id="removeWinnerBtn"
+        class="mt-4 px-6 py-2 bg-red-500 hover:bg-red-600 text-white font-semibold rounded-xl transition-all duration-200 hover:scale-105"
+        aria-label="Quitar ganador de la lista"
+      >
+        ❌ Quitar de la lista
+      </button>
+      <button 
+        id="continueEliminationBtn"
+        class="hidden mt-4 ml-2 px-6 py-2 bg-orange-500 hover:bg-orange-600 text-white font-semibold rounded-xl transition-all duration-200 hover:scale-105"
+        aria-label="Continuar eliminación"
+      >
+        ⏭️ Continuar Eliminación
+      </button>
+    </div>
+
+    <!-- Elimination Mode Progress -->
+    <div id="eliminationProgress" class="hidden mt-6 w-full max-w-md">
+      <div class="bg-white/10 rounded-xl p-4">
+        <h3 class="text-white font-semibold mb-2">💀 Eliminados:</h3>
+        <div id="eliminatedList" class="flex flex-wrap gap-2 max-h-32 overflow-y-auto"></div>
+        <div class="mt-3 text-gray-300 text-sm">
+          Quedan: <span id="remainingCount" class="text-white font-bold">0</span> participantes
+        </div>
+      </div>
+    </div>
+
+    <!-- Teams Result -->
+    <div id="teamsResult" class="hidden mt-6 w-full">
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" id="teamsContainer"></div>
+    </div>
+
+    <!-- Order Result -->
+    <div id="orderResult" class="hidden mt-6 w-full max-w-md">
+      <div class="bg-white/10 rounded-xl p-4">
+        <h3 class="text-white font-semibold mb-3">📋 Orden Establecido:</h3>
+        <ol id="orderList" class="space-y-2 max-h-64 overflow-y-auto"></ol>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Speed Selection -->
+  <div class="bg-white/10 backdrop-blur-sm rounded-2xl p-6 mb-6">
+    <h2 class="text-xl font-semibold text-white mb-4">⚡ Velocidad de animación</h2>
+    <div class="flex flex-wrap gap-4 justify-center">
+      <label class="flex items-center gap-2 cursor-pointer">
+        <input type="radio" name="speed" value="1" class="w-5 h-5 accent-purple-500" />
+        <span class="text-white">🚀 Rápida (1s)</span>
+      </label>
+      <label class="flex items-center gap-2 cursor-pointer">
+        <input type="radio" name="speed" value="5" checked class="w-5 h-5 accent-purple-500" />
+        <span class="text-white">🚶 Normal (5s)</span>
+      </label>
+      <label class="flex items-center gap-2 cursor-pointer">
+        <input type="radio" name="speed" value="10" class="w-5 h-5 accent-purple-500" />
+        <span class="text-white">🐢 Lenta (10s)</span>
+      </label>
+    </div>
+    <!-- Custom speed -->
+    <div class="mt-4 flex items-center justify-center gap-3">
+      <span class="text-gray-300 text-sm">⏱️ Personalizada:</span>
+      <input 
+        type="number" 
+        id="customSpeed" 
+        min="0.5" 
+        max="30" 
+        step="0.5"
+        placeholder="seg"
+        class="w-20 px-3 py-1 rounded-lg bg-white/20 text-white border border-white/30 focus:outline-none focus:border-purple-400 text-center"
+      />
+      <button 
+        id="applyCustomSpeed"
+        class="px-3 py-1 bg-purple-500 hover:bg-purple-600 text-white text-sm rounded-lg transition-all"
+      >
+        Aplicar
+      </button>
+    </div>
+  </div>
+  
+  <!-- Action Buttons -->
+  <div class="flex flex-wrap gap-4 justify-center">
+    <button 
+      id="spinBtn"
+      class="px-8 py-4 bg-linear-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-bold text-lg rounded-2xl transition-all duration-200 hover:scale-105 shadow-lg shadow-purple-500/50 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+      aria-label="Girar ruleta"
+    >
+      🎡 ¡Girar Ruleta!
+    </button>
+    <button 
+      id="randomBtn"
+      class="px-8 py-4 bg-linear-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 text-white font-bold text-lg rounded-2xl transition-all duration-200 hover:scale-105 shadow-lg shadow-blue-500/50 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+      aria-label="Selección aleatoria"
+    >
+      🎲 Selección Aleatoria
+    </button>
+    <button 
+      id="shuffleBtn"
+      class="px-8 py-4 bg-linear-to-r from-amber-500 to-yellow-500 hover:from-amber-600 hover:to-yellow-600 text-white font-bold text-lg rounded-2xl transition-all duration-200 hover:scale-105 shadow-lg shadow-amber-500/50 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+      aria-label="Mezclar participantes"
+    >
+      🔀 Mezclar
+    </button>
+    <button 
+      id="clearBtn"
+      class="px-6 py-4 bg-gray-600 hover:bg-gray-700 text-white font-semibold rounded-2xl transition-all duration-200 hover:scale-105"
+      aria-label="Limpiar todo"
+    >
+      🗑️ Limpiar todo
+    </button>
+  </div>
+
+  <!-- Fullscreen Button -->
+  <div class="flex justify-center mt-4">
+    <button 
+      id="fullscreenBtn"
+      class="px-4 py-2 bg-white/10 hover:bg-white/20 text-gray-300 hover:text-white rounded-xl transition-all"
+      aria-label="Pantalla completa"
+    >
+      🖥️ Pantalla Completa
+    </button>
+  </div>
+
+  <!-- History Section -->
+  <div id="historySection" class="hidden mt-8 bg-white/10 backdrop-blur-sm rounded-2xl p-6">
+    <div class="flex justify-between items-center mb-4">
+      <h2 class="text-xl font-semibold text-white">📜 Historial de Resultados</h2>
+      <button id="clearHistoryBtn" class="text-gray-400 hover:text-white text-sm" aria-label="Limpiar historial">Limpiar historial</button>
+    </div>
+    <div id="historyList" class="space-y-2 max-h-48 overflow-y-auto"></div>
+  </div>
+
+  <!-- Provably Fair Section -->
+  <div class="mt-8 bg-linear-to-r from-green-500/10 to-emerald-500/10 backdrop-blur-sm rounded-2xl p-6 border border-green-500/20">
+    <div class="flex items-center justify-between mb-4">
+      <h2 class="text-xl font-semibold text-white flex items-center gap-2">
+        <span>✅</span> Provably Fair
+      </h2>
+      <button 
+        id="provablyFairToggle"
+        class="flex items-center gap-2 px-3 py-1.5 bg-green-500/20 hover:bg-green-500/30 text-green-300 hover:text-white text-sm font-medium rounded-lg transition-all duration-200"
+        aria-label="Ver detalles técnicos"
+      >
+        <span>🔍</span>
+        <span>Ver detalles</span>
+      </button>
+    </div>
+    
+    <p class="text-gray-300 text-sm mb-4">
+      Cada sorteo es 100% aleatorio y verificable. No hay manipulación posible.
+    </p>
+
+    <div id="provablyFairPanel" class="hidden space-y-4">
+      <div class="bg-black/20 rounded-xl p-4">
+        <h3 class="text-green-400 font-semibold mb-2">📊 Último Sorteo</h3>
+        <div id="lastSpinDetails" class="text-sm space-y-1">
+          <p class="text-gray-400">Aún no se ha realizado ningún sorteo.</p>
+        </div>
+      </div>
+      
+      <div class="bg-black/20 rounded-xl p-4">
+        <h3 class="text-green-400 font-semibold mb-2">🔢 Fórmula de Selección</h3>
+        <code class="text-xs text-green-300 bg-black/30 p-2 rounded block overflow-x-auto">
+          ganador = participantes[Math.floor(ánguloPointer / (360° ÷ totalParticipantes))]
+        </code>
+      </div>
+
+      <div class="grid grid-cols-2 gap-4 text-sm">
+        <div class="bg-black/20 rounded-lg p-3">
+          <span class="text-gray-400">Método RNG:</span>
+          <span class="text-white ml-2">Math.random()</span>
+        </div>
+        <div class="bg-black/20 rounded-lg p-3">
+          <span class="text-gray-400">Servidor:</span>
+          <span class="text-green-400 ml-2">❌ Sin servidor</span>
+        </div>
+        <div class="bg-black/20 rounded-lg p-3">
+          <span class="text-gray-400">Ejecución:</span>
+          <span class="text-white ml-2">100% Local</span>
+        </div>
+        <div class="bg-black/20 rounded-lg p-3">
+          <span class="text-gray-400">Probabilidad:</span>
+          <span class="text-white ml-2">1/N igual</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Provably Fair Verifier -->
+  <div class="mt-6 bg-purple-500/10 backdrop-blur-sm rounded-2xl p-6 border border-purple-500/30">
+    <div class="flex items-center gap-3 mb-4">
+      <span class="text-3xl">⚖️</span>
+      <h2 class="text-xl font-bold text-purple-400">Verificador Provably Fair</h2>
+    </div>
+    <p class="text-gray-400 text-sm mb-4">
+      Introduce una semilla para verificar que el resultado no está trucado. El algoritmo es determinista: la misma semilla siempre produce el mismo resultado.
+    </p>
+    
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <!-- Input Section -->
+      <div class="space-y-4">
+        <div>
+          <label class="block text-sm text-gray-300 mb-2">🌱 Semilla (hexadecimal, 32 chars)</label>
+          <div class="flex gap-2">
+            <input 
+              type="text" 
+              id="verify-seed-input-classic"
+              placeholder="Ej: a1b2c3d4e5f6a7b8..."
+              class="flex-1 bg-white/10 border border-gray-600 rounded-lg px-3 py-2 text-white font-mono text-xs placeholder-gray-500 focus:outline-none focus:border-purple-400"
+              maxlength="32"
+            />
+            <button 
+              id="verify-seed-btn-classic"
+              class="bg-purple-600 hover:bg-purple-500 px-4 py-2 rounded-lg font-bold transition-colors text-sm"
+            >
+              Verificar
+            </button>
+          </div>
+        </div>
+        
+        <div>
+          <label class="block text-sm text-gray-300 mb-2">👥 Número de participantes</label>
+          <input 
+            type="number" 
+            id="verify-participants-count-classic"
+            placeholder="Ej: 10"
+            min="2"
+            max="100"
+            class="w-full bg-white/10 border border-gray-600 rounded-lg px-3 py-2 text-white placeholder-gray-500 focus:outline-none focus:border-purple-400"
+          />
+        </div>
+      </div>
+      
+      <!-- Results Section -->
+      <div class="bg-black/20 rounded-xl p-4 border border-gray-700">
+        <h3 class="text-sm font-bold text-gray-300 mb-3">📊 Resultado de la Verificación</h3>
+        <div id="verify-results-classic" class="space-y-2 text-sm font-mono">
+          <div class="text-gray-500 text-center py-4">
+            Introduce una semilla y pulsa verificar
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Algorithm Explanation -->
+    <details class="mt-4">
+      <summary class="cursor-pointer text-gray-400 text-sm hover:text-gray-300">📖 ¿Cómo funciona el algoritmo?</summary>
+      <div class="mt-3 bg-black/30 rounded-lg p-4 text-xs text-gray-400 font-mono">
+        <pre class="whitespace-pre-wrap">
+1. La semilla son 4 números Uint32 en hexadecimal (32 chars total)
+2. Se hace XOR de los 4 valores para obtener un número
+3. Se divide entre 0xFFFFFFFF para obtener un decimal [0, 1)
+4. Número de vueltas = 15 + (random × 10) vueltas
+5. Rotación total = vueltas × 360°
+6. Ángulo final = rotación % 360°
+7. Ganador = participante en la posición donde apunta</pre>
+      </div>
+    </details>
+  </div>
+
+  <!-- Keyboard Shortcuts Info -->
+  <div class="mt-8 bg-white/5 backdrop-blur-sm rounded-2xl p-4 text-center">
+    <p class="text-gray-400 text-sm">
+      <strong class="text-gray-300">Atajos de teclado:</strong> 
+      <kbd class="px-2 py-1 bg-white/10 rounded text-xs mx-1">Espacio</kbd> Girar | 
+      <kbd class="px-2 py-1 bg-white/10 rounded text-xs mx-1">R</kbd> Aleatorio | 
+      <kbd class="px-2 py-1 bg-white/10 rounded text-xs mx-1">M</kbd> Mezclar | 
+      <kbd class="px-2 py-1 bg-white/10 rounded text-xs mx-1">F</kbd> Pantalla completa
+    </p>
+  </div>
+</div>
+
+<script>
+  // Roulette Logic
+  type GameMode = 'winner' | 'eliminate' | 'teams' | 'order' | 'troll' | 'mystery';
+
+  // Color schemes
+  const COLOR_SCHEMES = {
+    default: ['#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7', '#DDA0DD', '#98D8C8', '#F7DC6F', '#BB8FCE', '#85C1E9', '#F8B500', '#00CED1', '#FF69B4', '#32CD32', '#FF8C00'],
+    rainbow: ['#FF0000', '#FF7F00', '#FFFF00', '#00FF00', '#0000FF', '#4B0082', '#9400D3'],
+    pastel: ['#FFB3BA', '#FFDFBA', '#FFFFBA', '#BAFFC9', '#BAE1FF', '#E0BBE4', '#FFDFD3'],
+    neon: ['#FF00FF', '#00FFFF', '#FF00AA', '#AAFF00', '#00AAFF', '#FFAA00'],
+    ocean: ['#006994', '#0582B7', '#1D9DD8', '#3FB7DC', '#65D1E0', '#8BE5E5'],
+    forest: ['#2D5016', '#3A6B1F', '#4A8628', '#5BA132', '#6DBC3D', '#80D748'],
+    sunset: ['#FF6B35', '#F7931E', '#FDC830', '#F37335', '#C42D27', '#8B1874'],
+    monochrome: ['#1a1a1a', '#404040', '#666666', '#8c8c8c', '#b3b3b3', '#d9d9d9']
+  };
+
+  class RouletteWheel {
+    private canvas: HTMLCanvasElement;
+    private ctx: CanvasRenderingContext2D;
+    private participants: string[] = [];
+    private eliminatedParticipants: string[] = [];
+    private currentRotation: number = 0;
+    private isSpinning: boolean = false;
+    private history: { mode: string; result: string; timestamp: Date }[] = [];
+    private colors: string[] = COLOR_SCHEMES.default;
+    
+    // Mystery mode state
+    private mysteryMode: boolean = false;
+    private mysteryRevealed: boolean = false;
+    private mysteryShuffledIndices: number[] = [];
+    private mysteryColors: string[] = [];
+    private readonly MYSTERY_COLORS = [
+      '#9333EA', '#EC4899', '#06B6D4', '#84CC16', '#F97316',
+      '#6366F1', '#14B8A6', '#EAB308', '#EF4444', '#8B5CF6'
+    ];
+    
+    // Troll mode state
+    private trollMode: boolean = false;
+    private trollBounceCount: number = 0;
+    
+    // Customization settings
+    private wheelSize: number = 400;
+    private currentColorScheme: string = 'default';
+    private fontSize: number = 14;
+    private maxChars: number = 12;
+    
+    // Pointer and center customization
+    private pointerStyle: 'triangle' | 'arrow' | 'diamond' = 'triangle';
+    private pointerColor: string = '#FACC15';
+    private centerStyle: 'classic' | 'logo' | 'spin' | 'none' = 'classic';
+    
+    // Text options
+    private fontFamily: string = 'sans-serif';
+    private fontBold: boolean = true;
+    private fontItalic: boolean = false;
+    private textShadow: boolean = false;
+    private textColor: string = '#ffffff';
+    
+    // Sound options
+    private audioContext: AudioContext | null = null;
+    private soundEnabled: boolean = false;
+    private tickSoundEnabled: boolean = false;
+    private winSoundEnabled: boolean = true;
+    private soundVolume: number = 0.5;
+    private lastTickTime: number = 0;
+    
+    // Animation options
+    private minSpins: number = 5;
+    private maxSpins: number = 10;
+    private easingType: 'linear' | 'easeOut' | 'bounce' | 'elastic' = 'easeOut';
+    
+    // Celebration options
+    private confettiEnabled: boolean = true;
+    private flashEnabled: boolean = false;
+    private confettiParticles: Array<{x: number, y: number, vx: number, vy: number, color: string, size: number, rotation: number}> = [];
+    
+    // Christmas options
+    private christmasMode: boolean = true;
+    private snowEnabled: boolean = true;
+    private christmasColors: boolean = true;
+    private christmasSounds: boolean = false;
+    private snowflakeInterval: number | null = null;
+    private readonly CHRISTMAS_COLORS = ['#C41E3A', '#165B33', '#BB2528', '#146B3A', '#F8B229', '#EA4630', '#1E792C', '#FFFFFF'];
+    
+    // Provably Fair data
+    private lastSpinData: {
+      seed: string;
+      participants: string[];
+      totalRotation: number;
+      winnerIndex: number;
+      winner: string;
+      timestamp: Date;
+    } | null = null;
+    private currentSpinSeed: string = '';
+
+    constructor() {
+      this.canvas = document.getElementById('rouletteCanvas') as HTMLCanvasElement;
+      this.ctx = this.canvas.getContext('2d')!;
+      this.drawWheel();
+      this.setupEventListeners();
+      this.updateParticipantCounter();
+      this.initChristmasMode();
+    }
+    
+    private initChristmasMode(): void {
+      // Check if it's Christmas season (November 15 - January 6)
+      const now = new Date();
+      const month = now.getMonth();
+      const day = now.getDate();
+      const isChristmasSeason = (month === 10 && day >= 15) || month === 11 || (month === 0 && day <= 6);
+      
+      if (isChristmasSeason && this.christmasMode) {
+        this.startSnowfall();
+        this.showChristmasDecorations();
+        if (this.christmasColors) {
+          this.applyChristmasColors();
+        }
+      }
+    }
+    
+    private startSnowfall(): void {
+      if (!this.snowEnabled || this.snowflakeInterval) return;
+      
+      const container = document.getElementById('snowContainer');
+      if (!container) return;
+      
+      // Create initial snowflakes
+      for (let i = 0; i < 30; i++) {
+        setTimeout(() => this.createSnowflake(container), i * 200);
+      }
+      
+      // Continue creating snowflakes
+      this.snowflakeInterval = window.setInterval(() => {
+        if (this.snowEnabled && this.christmasMode) {
+          this.createSnowflake(container);
+        }
+      }, 300);
+    }
+    
+    private createSnowflake(container: HTMLElement): void {
+      const snowflake = document.createElement('div');
+      const size = 10 + Math.random() * 20;
+      const startX = Math.random() * 100;
+      const duration = 8 + Math.random() * 7;
+      const delay = Math.random() * 2;
+      
+      snowflake.innerHTML = ['❄', '❅', '❆', '✻', '✼'][Math.floor(Math.random() * 5)];
+      snowflake.className = 'snowflake';
+      snowflake.style.cssText = `
+        position: fixed;
+        left: ${startX}%;
+        top: -30px;
+        font-size: ${size}px;
+        color: white;
+        opacity: ${0.4 + Math.random() * 0.6};
+        animation: snowfall ${duration}s linear ${delay}s forwards;
+        z-index: 1;
+        pointer-events: none;
+        text-shadow: 0 0 5px rgba(255,255,255,0.5);
+      `;
+      
+      container.appendChild(snowflake);
+      
+      setTimeout(() => {
+        snowflake.remove();
+      }, (duration + delay) * 1000);
+    }
+    
+    private stopSnowfall(): void {
+      if (this.snowflakeInterval) {
+        clearInterval(this.snowflakeInterval);
+        this.snowflakeInterval = null;
+      }
+      const container = document.getElementById('snowContainer');
+      if (container) {
+        container.innerHTML = '';
+      }
+    }
+    
+    private showChristmasDecorations(): void {
+      const decorations = document.getElementById('christmasDecorations');
+      if (decorations) {
+        decorations.classList.remove('hidden');
+      }
+    }
+    
+    private hideChristmasDecorations(): void {
+      const decorations = document.getElementById('christmasDecorations');
+      if (decorations) {
+        decorations.classList.add('hidden');
+      }
+    }
+    
+    private applyChristmasColors(): void {
+      if (this.christmasColors && this.christmasMode) {
+        this.colors = this.CHRISTMAS_COLORS;
+        this.updateParticipantsList();
+        this.drawWheel();
+      }
+    }
+    
+    private playChristmasBells(): void {
+      if (!this.christmasSounds || !this.soundEnabled) return;
+      if (!this.audioContext) this.initAudioContext();
+      if (!this.audioContext) return;
+      
+      // Play jingle bells-like sound
+      const notes = [659.25, 659.25, 659.25, 659.25, 659.25, 659.25, 659.25, 783.99, 523.25, 587.33, 659.25];
+      const durations = [0.2, 0.2, 0.4, 0.2, 0.2, 0.4, 0.2, 0.2, 0.2, 0.2, 0.8];
+      
+      let time = this.audioContext.currentTime;
+      notes.forEach((freq, i) => {
+        const oscillator = this.audioContext!.createOscillator();
+        const gainNode = this.audioContext!.createGain();
+        
+        oscillator.connect(gainNode);
+        gainNode.connect(this.audioContext!.destination);
+        
+        oscillator.frequency.value = freq;
+        oscillator.type = 'sine';
+        
+        gainNode.gain.setValueAtTime(0, time);
+        gainNode.gain.linearRampToValueAtTime(this.soundVolume * 0.3, time + 0.02);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, time + durations[i]);
+        
+        oscillator.start(time);
+        oscillator.stop(time + durations[i]);
+        
+        time += durations[i];
+      });
+    }
+
+    private setupEventListeners(): void {
+      const addBtn = document.getElementById('addBtn')!;
+      const input = document.getElementById('participantInput') as HTMLInputElement;
+      const bulkInput = document.getElementById('bulkInput') as HTMLInputElement;
+      const bulkAddBtn = document.getElementById('bulkAddBtn')!;
+      const spinBtn = document.getElementById('spinBtn')!;
+      const randomBtn = document.getElementById('randomBtn')!;
+      const shuffleBtn = document.getElementById('shuffleBtn')!;
+      const clearBtn = document.getElementById('clearBtn')!;
+      const removeWinnerBtn = document.getElementById('removeWinnerBtn')!;
+      const continueEliminationBtn = document.getElementById('continueEliminationBtn')!;
+      const clearHistoryBtn = document.getElementById('clearHistoryBtn')!;
+      const infoToggleBtn = document.getElementById('infoToggleBtn')!;
+      const infoPanel = document.getElementById('infoPanel')!;
+
+      // Info panel toggle
+      infoToggleBtn.addEventListener('click', () => {
+        infoPanel.classList.toggle('hidden');
+        const isVisible = !infoPanel.classList.contains('hidden');
+        infoToggleBtn.innerHTML = isVisible 
+          ? '<span class="text-lg">✕</span><span>Cerrar</span>'
+          : '<span class="text-lg">ℹ️</span><span>Info</span>';
+      });
+
+      addBtn.addEventListener('click', () => this.addParticipant());
+      input.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') this.addParticipant();
+      });
+      bulkAddBtn.addEventListener('click', () => this.bulkAddParticipants());
+      bulkInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') this.bulkAddParticipants();
+      });
+      spinBtn.addEventListener('click', () => this.handleSpin());
+      randomBtn.addEventListener('click', () => this.handleRandomSelect());
+      shuffleBtn.addEventListener('click', () => this.shuffleParticipants());
+      clearBtn.addEventListener('click', () => this.clearAll());
+      removeWinnerBtn.addEventListener('click', () => this.removeWinner());
+      continueEliminationBtn.addEventListener('click', () => this.continueElimination());
+      clearHistoryBtn.addEventListener('click', () => this.clearHistory());
+
+      // Import/Export buttons
+      const importBtn = document.getElementById('importBtn')!;
+      const exportBtn = document.getElementById('exportBtn')!;
+      const fileInput = document.getElementById('fileInput') as HTMLInputElement;
+      const saveLocalBtn = document.getElementById('saveLocalBtn')!;
+      const loadLocalBtn = document.getElementById('loadLocalBtn')!;
+      const fullscreenBtn = document.getElementById('fullscreenBtn')!;
+      
+      importBtn.addEventListener('click', () => fileInput.click());
+      fileInput.addEventListener('change', (e) => this.handleFileImport(e));
+      exportBtn.addEventListener('click', () => this.exportParticipants());
+      saveLocalBtn.addEventListener('click', () => this.saveToLocalStorage());
+      loadLocalBtn.addEventListener('click', () => this.loadFromLocalStorage());
+      fullscreenBtn.addEventListener('click', () => this.toggleFullscreen());
+      
+      // Keyboard shortcuts
+      document.addEventListener('keydown', (e) => this.handleKeyboardShortcut(e));
+
+      // Game mode selection
+      document.querySelectorAll('input[name="gameMode"]').forEach(radio => {
+        radio.addEventListener('change', () => this.onGameModeChange());
+      });
+
+      // Customization toggles
+      const customizationToggle = document.getElementById('customizationToggle')!;
+      const customizationPanel = document.getElementById('customizationPanel')!;
+      customizationToggle.addEventListener('click', () => {
+        customizationPanel.classList.toggle('hidden');
+      });
+
+      // Wheel size
+      const wheelSizeInput = document.getElementById('wheelSize') as HTMLInputElement;
+      const wheelSizeValue = document.getElementById('wheelSizeValue')!;
+      wheelSizeInput.addEventListener('input', () => {
+        this.wheelSize = parseInt(wheelSizeInput.value);
+        wheelSizeValue.textContent = `${this.wheelSize}px`;
+        this.resizeCanvas();
+      });
+
+      // Color scheme buttons
+      document.querySelectorAll('.color-scheme-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const scheme = (btn as HTMLElement).dataset.scheme!;
+          this.setColorScheme(scheme);
+          
+          // Update button styles
+          document.querySelectorAll('.color-scheme-btn').forEach(b => {
+            b.classList.remove('border-purple-500', 'bg-purple-500/20');
+            b.classList.add('border-white/30');
+          });
+          btn.classList.add('border-purple-500', 'bg-purple-500/20');
+          btn.classList.remove('border-white/30');
+        });
+      });
+
+      // Custom colors
+      const applyCustomColors = document.getElementById('applyCustomColors')!;
+      applyCustomColors.addEventListener('click', () => {
+        const customColors = [];
+        for (let i = 1; i <= 5; i++) {
+          const colorInput = document.getElementById(`customColor${i}`) as HTMLInputElement;
+          customColors.push(colorInput.value);
+        }
+        this.colors = customColors;
+        this.currentColorScheme = 'custom';
+        this.updateParticipantsList();
+        this.drawWheel();
+      });
+
+      // Font size
+      const fontSizeInput = document.getElementById('fontSize') as HTMLInputElement;
+      const fontSizeValue = document.getElementById('fontSizeValue')!;
+      fontSizeInput.addEventListener('input', () => {
+        this.fontSize = parseInt(fontSizeInput.value);
+        fontSizeValue.textContent = `${this.fontSize}px`;
+        this.drawWheel();
+      });
+
+      // Max characters
+      const maxCharsInput = document.getElementById('maxChars') as HTMLInputElement;
+      maxCharsInput.addEventListener('input', () => {
+        this.maxChars = parseInt(maxCharsInput.value);
+        this.drawWheel();
+      });
+
+      // Reset customization
+      const resetCustomization = document.getElementById('resetCustomization')!;
+      resetCustomization.addEventListener('click', () => {
+        this.resetCustomizationSettings();
+      });
+
+      // Pointer style buttons
+      document.querySelectorAll('.pointer-style-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const pointer = (btn as HTMLElement).dataset.pointer as 'triangle' | 'arrow' | 'diamond';
+          this.pointerStyle = pointer;
+          
+          // Update button styles
+          document.querySelectorAll('.pointer-style-btn').forEach(b => {
+            b.classList.remove('border-purple-500', 'bg-purple-500/20');
+            b.classList.add('border-white/30');
+          });
+          btn.classList.add('border-purple-500', 'bg-purple-500/20');
+          btn.classList.remove('border-white/30');
+          
+          this.drawWheel();
+        });
+      });
+
+      // Pointer color
+      const pointerColorInput = document.getElementById('pointerColor') as HTMLInputElement;
+      pointerColorInput.addEventListener('input', () => {
+        this.pointerColor = pointerColorInput.value;
+        this.drawWheel();
+      });
+
+      // Center style buttons
+      document.querySelectorAll('.center-style-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const center = (btn as HTMLElement).dataset.center as 'classic' | 'logo' | 'spin' | 'none';
+          this.centerStyle = center;
+          
+          // Update button styles
+          document.querySelectorAll('.center-style-btn').forEach(b => {
+            b.classList.remove('border-purple-500', 'bg-purple-500/20');
+            b.classList.add('border-white/30');
+          });
+          btn.classList.add('border-purple-500', 'bg-purple-500/20');
+          btn.classList.remove('border-white/30');
+          
+          this.drawWheel();
+        });
+      });
+
+      // Font family
+      const fontFamilySelect = document.getElementById('fontFamily') as HTMLSelectElement;
+      if (fontFamilySelect) {
+        fontFamilySelect.addEventListener('change', () => {
+          this.fontFamily = fontFamilySelect.value;
+          this.drawWheel();
+        });
+      }
+
+      // Font bold
+      const fontBoldCheck = document.getElementById('fontBold') as HTMLInputElement;
+      if (fontBoldCheck) {
+        fontBoldCheck.addEventListener('change', () => {
+          this.fontBold = fontBoldCheck.checked;
+          this.drawWheel();
+        });
+      }
+
+      // Font italic
+      const fontItalicCheck = document.getElementById('fontItalic') as HTMLInputElement;
+      if (fontItalicCheck) {
+        fontItalicCheck.addEventListener('change', () => {
+          this.fontItalic = fontItalicCheck.checked;
+          this.drawWheel();
+        });
+      }
+
+      // Text shadow
+      const textShadowCheck = document.getElementById('textShadow') as HTMLInputElement;
+      if (textShadowCheck) {
+        textShadowCheck.addEventListener('change', () => {
+          this.textShadow = textShadowCheck.checked;
+          this.drawWheel();
+        });
+      }
+
+      // Text color
+      const textColorInput = document.getElementById('textColor') as HTMLInputElement;
+      if (textColorInput) {
+        textColorInput.addEventListener('input', () => {
+          this.textColor = textColorInput.value;
+          this.drawWheel();
+        });
+      }
+
+      // Sound options
+      const soundEnabledCheck = document.getElementById('soundEnabled') as HTMLInputElement;
+      if (soundEnabledCheck) {
+        soundEnabledCheck.addEventListener('change', () => {
+          this.soundEnabled = soundEnabledCheck.checked;
+          if (this.soundEnabled && !this.audioContext) {
+            this.initAudioContext();
+          }
+        });
+      }
+
+      const tickSoundCheck = document.getElementById('tickSound') as HTMLInputElement;
+      if (tickSoundCheck) {
+        tickSoundCheck.addEventListener('change', () => {
+          this.tickSoundEnabled = tickSoundCheck.checked;
+        });
+      }
+
+      const winSoundCheck = document.getElementById('winSound') as HTMLInputElement;
+      if (winSoundCheck) {
+        winSoundCheck.addEventListener('change', () => {
+          this.winSoundEnabled = winSoundCheck.checked;
+        });
+      }
+
+      const soundVolumeInput = document.getElementById('soundVolume') as HTMLInputElement;
+      if (soundVolumeInput) {
+        soundVolumeInput.addEventListener('input', () => {
+          this.soundVolume = parseInt(soundVolumeInput.value) / 100;
+        });
+      }
+
+      // Animation options
+      const minSpinsInput = document.getElementById('minSpins') as HTMLInputElement;
+      if (minSpinsInput) {
+        minSpinsInput.addEventListener('input', () => {
+          this.minSpins = parseInt(minSpinsInput.value);
+        });
+      }
+
+      const maxSpinsInput = document.getElementById('maxSpins') as HTMLInputElement;
+      if (maxSpinsInput) {
+        maxSpinsInput.addEventListener('input', () => {
+          this.maxSpins = parseInt(maxSpinsInput.value);
+        });
+      }
+
+      // Easing buttons
+      document.querySelectorAll('.easing-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const easing = (btn as HTMLElement).dataset.easing as 'linear' | 'easeOut' | 'bounce' | 'elastic';
+          this.easingType = easing;
+          
+          // Update button styles
+          document.querySelectorAll('.easing-btn').forEach(b => {
+            b.classList.remove('border-purple-500', 'bg-purple-500/20');
+            b.classList.add('border-white/30');
+          });
+          btn.classList.add('border-purple-500', 'bg-purple-500/20');
+          btn.classList.remove('border-white/30');
+        });
+      });
+
+      // Celebration options
+      const confettiCheck = document.getElementById('confettiEnabled') as HTMLInputElement;
+      if (confettiCheck) {
+        confettiCheck.addEventListener('change', () => {
+          this.confettiEnabled = confettiCheck.checked;
+        });
+      }
+
+      const flashCheck = document.getElementById('flashEnabled') as HTMLInputElement;
+      if (flashCheck) {
+        flashCheck.addEventListener('change', () => {
+          this.flashEnabled = flashCheck.checked;
+        });
+      }
+
+      // Christmas options
+      const christmasModeCheck = document.getElementById('christmasMode') as HTMLInputElement;
+      if (christmasModeCheck) {
+        christmasModeCheck.addEventListener('change', () => {
+          this.christmasMode = christmasModeCheck.checked;
+          if (this.christmasMode) {
+            this.initChristmasMode();
+          } else {
+            this.stopSnowfall();
+            this.hideChristmasDecorations();
+            // Restore default colors if christmas colors were active
+            if (this.christmasColors) {
+              this.setColorScheme('default');
+            }
+          }
+        });
+      }
+
+      const snowCheck = document.getElementById('snowEnabled') as HTMLInputElement;
+      if (snowCheck) {
+        snowCheck.addEventListener('change', () => {
+          this.snowEnabled = snowCheck.checked;
+          if (this.snowEnabled && this.christmasMode) {
+            this.startSnowfall();
+          } else {
+            this.stopSnowfall();
+          }
+        });
+      }
+
+      const christmasColorsCheck = document.getElementById('christmasColors') as HTMLInputElement;
+      if (christmasColorsCheck) {
+        christmasColorsCheck.addEventListener('change', () => {
+          this.christmasColors = christmasColorsCheck.checked;
+          if (this.christmasColors && this.christmasMode) {
+            this.applyChristmasColors();
+          } else {
+            this.setColorScheme('default');
+          }
+        });
+      }
+
+      const christmasSoundsCheck = document.getElementById('christmasSounds') as HTMLInputElement;
+      if (christmasSoundsCheck) {
+        christmasSoundsCheck.addEventListener('change', () => {
+          this.christmasSounds = christmasSoundsCheck.checked;
+        });
+      }
+      
+      // Provably Fair panel toggle
+      const provablyFairToggle = document.getElementById('provablyFairToggle');
+      const provablyFairPanel = document.getElementById('provablyFairPanel');
+      if (provablyFairToggle && provablyFairPanel) {
+        provablyFairToggle.addEventListener('click', () => {
+          provablyFairPanel.classList.toggle('hidden');
+          const isVisible = !provablyFairPanel.classList.contains('hidden');
+          provablyFairToggle.innerHTML = isVisible 
+            ? '🔒 Ocultar Provably Fair'
+            : '🔍 Ver Provably Fair';
+        });
+      }
+    }
+
+    private setColorScheme(scheme: string): void {
+      this.currentColorScheme = scheme;
+      this.colors = COLOR_SCHEMES[scheme as keyof typeof COLOR_SCHEMES] || COLOR_SCHEMES.default;
+      this.updateParticipantsList();
+      this.drawWheel();
+    }
+
+    private resizeCanvas(): void {
+      this.canvas.width = this.wheelSize;
+      this.canvas.height = this.wheelSize;
+      this.drawWheel();
+    }
+
+    private resetCustomizationSettings(): void {
+      this.wheelSize = 400;
+      this.setColorScheme('default');
+      this.fontSize = 14;
+      this.maxChars = 12;
+      this.pointerStyle = 'triangle';
+      this.pointerColor = '#FACC15';
+      this.centerStyle = 'classic';
+      this.fontFamily = 'sans-serif';
+      this.fontBold = true;
+      this.fontItalic = false;
+      this.textShadow = false;
+      this.textColor = '#ffffff';
+      
+      // Update UI
+      (document.getElementById('wheelSize') as HTMLInputElement).value = '400';
+      (document.getElementById('wheelSizeValue') as HTMLElement).textContent = '400px';
+      (document.getElementById('fontSize') as HTMLInputElement).value = '14';
+      (document.getElementById('fontSizeValue') as HTMLElement).textContent = '14px';
+      (document.getElementById('maxChars') as HTMLInputElement).value = '12';
+      (document.getElementById('pointerColor') as HTMLInputElement).value = '#FACC15';
+      
+      // Reset pointer style buttons
+      document.querySelectorAll('.pointer-style-btn').forEach(b => {
+        b.classList.remove('border-purple-500', 'bg-purple-500/20');
+        b.classList.add('border-white/30');
+      });
+      document.querySelector('.pointer-style-btn[data-pointer="triangle"]')?.classList.add('border-purple-500', 'bg-purple-500/20');
+      document.querySelector('.pointer-style-btn[data-pointer="triangle"]')?.classList.remove('border-white/30');
+      
+      // Reset center style buttons
+      document.querySelectorAll('.center-style-btn').forEach(b => {
+        b.classList.remove('border-purple-500', 'bg-purple-500/20');
+        b.classList.add('border-white/30');
+      });
+      document.querySelector('.center-style-btn[data-center="classic"]')?.classList.add('border-purple-500', 'bg-purple-500/20');
+      document.querySelector('.center-style-btn[data-center="classic"]')?.classList.remove('border-white/30');
+      
+      // Reset text options
+      const fontFamilySelect = document.getElementById('fontFamily') as HTMLSelectElement;
+      if (fontFamilySelect) fontFamilySelect.value = 'sans-serif';
+      const fontBoldCheck = document.getElementById('fontBold') as HTMLInputElement;
+      if (fontBoldCheck) fontBoldCheck.checked = true;
+      const fontItalicCheck = document.getElementById('fontItalic') as HTMLInputElement;
+      if (fontItalicCheck) fontItalicCheck.checked = false;
+      const textShadowCheck = document.getElementById('textShadow') as HTMLInputElement;
+      if (textShadowCheck) textShadowCheck.checked = false;
+      const textColorInput = document.getElementById('textColor') as HTMLInputElement;
+      if (textColorInput) textColorInput.value = '#ffffff';
+      
+      // Reset sound options
+      this.soundEnabled = false;
+      this.tickSoundEnabled = false;
+      this.winSoundEnabled = true;
+      this.soundVolume = 0.5;
+      const soundEnabledCheck = document.getElementById('soundEnabled') as HTMLInputElement;
+      if (soundEnabledCheck) soundEnabledCheck.checked = false;
+      const tickSoundCheck = document.getElementById('tickSound') as HTMLInputElement;
+      if (tickSoundCheck) tickSoundCheck.checked = false;
+      const winSoundCheck = document.getElementById('winSound') as HTMLInputElement;
+      if (winSoundCheck) winSoundCheck.checked = true;
+      const soundVolumeInput = document.getElementById('soundVolume') as HTMLInputElement;
+      if (soundVolumeInput) soundVolumeInput.value = '50';
+      
+      // Reset animation options
+      this.minSpins = 5;
+      this.maxSpins = 10;
+      this.easingType = 'easeOut';
+      const minSpinsInput = document.getElementById('minSpins') as HTMLInputElement;
+      if (minSpinsInput) minSpinsInput.value = '5';
+      const maxSpinsInput = document.getElementById('maxSpins') as HTMLInputElement;
+      if (maxSpinsInput) maxSpinsInput.value = '10';
+      
+      // Reset easing buttons
+      document.querySelectorAll('.easing-btn').forEach(b => {
+        b.classList.remove('border-purple-500', 'bg-purple-500/20');
+        b.classList.add('border-white/30');
+      });
+      document.querySelector('.easing-btn[data-easing="easeOut"]')?.classList.add('border-purple-500', 'bg-purple-500/20');
+      document.querySelector('.easing-btn[data-easing="easeOut"]')?.classList.remove('border-white/30');
+      
+      // Reset celebration options
+      this.confettiEnabled = true;
+      this.flashEnabled = false;
+      const confettiCheck = document.getElementById('confettiEnabled') as HTMLInputElement;
+      if (confettiCheck) confettiCheck.checked = true;
+      const flashCheck = document.getElementById('flashEnabled') as HTMLInputElement;
+      if (flashCheck) flashCheck.checked = false;
+      
+      this.resizeCanvas();
+    }
+
+    private getGameMode(): GameMode {
+      const selected = document.querySelector('input[name="gameMode"]:checked') as HTMLInputElement;
+      return (selected?.value || 'winner') as GameMode;
+    }
+
+    private onGameModeChange(): void {
+      const mode = this.getGameMode();
+      const teamsConfig = document.getElementById('teamsConfig')!;
+      const eliminationProgress = document.getElementById('eliminationProgress')!;
+      const teamsResult = document.getElementById('teamsResult')!;
+      const orderResult = document.getElementById('orderResult')!;
+
+      // Update card styles
+      document.querySelectorAll('.game-mode-card input').forEach(input => {
+        const card = (input as HTMLInputElement).parentElement!.querySelector('div')!;
+        if ((input as HTMLInputElement).checked) {
+          card.classList.add('border-purple-500', 'bg-purple-500/20');
+          card.classList.remove('border-white/30');
+        } else {
+          card.classList.remove('border-purple-500', 'bg-purple-500/20');
+          card.classList.add('border-white/30');
+        }
+      });
+
+      // Show/hide teams config
+      teamsConfig.classList.toggle('hidden', mode !== 'teams');
+
+      // Reset results
+      this.hideWinner();
+      eliminationProgress.classList.add('hidden');
+      teamsResult.classList.add('hidden');
+      orderResult.classList.add('hidden');
+
+      // Reset elimination state
+      if (mode !== 'eliminate') {
+        this.eliminatedParticipants = [];
+      }
+      
+      // Handle mystery mode
+      this.mysteryMode = mode === 'mystery';
+      this.mysteryRevealed = false;
+      
+      // Initialize mystery display with shuffled colors and positions
+      if (this.mysteryMode) {
+        this.initMysteryDisplay();
+      }
+      
+      // Handle troll mode
+      this.trollMode = mode === 'troll';
+      this.trollBounceCount = 0;
+      
+      // Redraw wheel for mystery mode
+      this.drawWheel();
+    }
+
+    // Shuffle array using Fisher-Yates algorithm
+    private shuffleArray<T>(array: T[]): T[] {
+      const shuffled = [...array];
+      for (let i = shuffled.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+      }
+      return shuffled;
+    }
+
+    // Initialize mystery display with shuffled colors and positions
+    private initMysteryDisplay(): void {
+      if (this.participants.length > 0) {
+        // Create shuffled indices for position randomization
+        this.mysteryShuffledIndices = this.shuffleArray([...Array(this.participants.length).keys()]);
+        
+        // Assign shuffled mystery colors
+        let colors = this.shuffleArray([...this.MYSTERY_COLORS]);
+        // Ensure we have enough colors by repeating if needed
+        while (colors.length < this.participants.length) {
+          colors = colors.concat(this.shuffleArray([...this.MYSTERY_COLORS]));
+        }
+        this.mysteryColors = colors.slice(0, this.participants.length);
+      }
+    }
+
+    private addParticipant(): void {
+      const input = document.getElementById('participantInput') as HTMLInputElement;
+      const rawName = input.value.trim();
+      const name = this.sanitizeName(rawName);
+      
+      if (name && !this.participants.includes(name)) {
+        if (this.participants.length >= 1000) {
+          alert('Límite máximo de 1000 participantes alcanzado');
+          return;
+        }
+        this.participants.push(name);
+        input.value = '';
+        this.updateParticipantsList();
+        this.drawWheel();
+        this.hideWinner();
+        this.updateParticipantCounter();
+        this.checkParticipantWarnings();
+      } else if (this.participants.includes(name)) {
+        this.showNotification('⚠️ Este nombre ya existe');
+      }
+    }
+
+    private bulkAddParticipants(): void {
+      const input = document.getElementById('bulkInput') as HTMLInputElement;
+      const names = input.value.split(',').map(n => this.sanitizeName(n.trim())).filter(n => n.length > 0);
+      let added = 0;
+      
+      names.forEach(name => {
+        if (!this.participants.includes(name) && this.participants.length < 1000) {
+          this.participants.push(name);
+          added++;
+        }
+      });
+      
+      input.value = '';
+      this.updateParticipantsList();
+      this.drawWheel();
+      this.hideWinner();
+      this.updateParticipantCounter();
+      this.checkParticipantWarnings();
+      
+      if (added > 0) {
+        this.showNotification(`✅ ${added} participante${added > 1 ? 's' : ''} añadido${added > 1 ? 's' : ''}`);
+      }
+    }
+
+    private updateParticipantCounter(): void {
+      const counter = document.getElementById('participantCounter')!;
+      const count = this.participants.length;
+      counter.textContent = count === 0 ? '' : `Total: ${count} participante${count !== 1 ? 's' : ''}`;
+    }
+
+    private updateParticipantsList(): void {
+      const list = document.getElementById('participantsList')!;
+      // Clear existing content safely
+      list.innerHTML = '';
+      
+      this.participants.forEach((name, index) => {
+        const span = document.createElement('span');
+        span.className = 'inline-flex items-center gap-2 px-3 py-1 rounded-full text-sm font-medium text-white';
+        span.style.backgroundColor = this.colors[index % this.colors.length];
+        
+        // Use textContent for safe text insertion (prevents XSS)
+        const textNode = document.createTextNode(name + ' ');
+        span.appendChild(textNode);
+        
+        const button = document.createElement('button');
+        button.className = 'remove-participant hover:text-red-200 transition-colors';
+        button.textContent = '×';
+        button.dataset.name = name; // Safe - dataset escapes automatically
+        button.addEventListener('click', () => this.removeParticipant(name));
+        
+        span.appendChild(button);
+        list.appendChild(span);
+      });
+    }
+
+    private removeParticipant(name: string): void {
+      this.participants = this.participants.filter(p => p !== name);
+      this.updateParticipantsList();
+      this.drawWheel();
+      this.hideWinner();
+      this.updateParticipantCounter();
+    }
+
+    private shuffleParticipants(): void {
+      if (this.isSpinning || this.participants.length < 2) return;
+      
+      // Fisher-Yates shuffle
+      for (let i = this.participants.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [this.participants[i], this.participants[j]] = [this.participants[j], this.participants[i]];
+      }
+      
+      this.updateParticipantsList();
+      this.drawWheel();
+    }
+
+    private drawWheel(): void {
+      const ctx = this.ctx;
+      const centerX = this.canvas.width / 2;
+      const centerY = this.canvas.height / 2;
+      const radius = Math.min(centerX, centerY) - 10;
+
+      // Clear canvas
+      ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+
+      if (this.participants.length === 0) {
+        // Draw empty wheel
+        ctx.beginPath();
+        ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
+        ctx.fillStyle = '#374151';
+        ctx.fill();
+        ctx.strokeStyle = '#6B7280';
+        ctx.lineWidth = 4;
+        ctx.stroke();
+
+        // Draw placeholder text
+        ctx.fillStyle = '#9CA3AF';
+        ctx.font = '18px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('Añade participantes', centerX, centerY);
+        
+        // Still draw pointer and center when empty
+        this.drawPointer(ctx, centerX, centerY, radius);
+        this.drawCenter(ctx, centerX, centerY);
+        return;
+      }
+
+      const sliceAngle = (2 * Math.PI) / this.participants.length;
+
+      // Save context and apply rotation
+      ctx.save();
+      ctx.translate(centerX, centerY);
+      ctx.rotate(this.currentRotation);
+      ctx.translate(-centerX, -centerY);
+
+      // Draw slices
+      // For mystery mode, use shuffled indices and mystery colors
+      const drawOrder = this.mysteryMode && !this.mysteryRevealed && this.mysteryShuffledIndices.length === this.participants.length
+        ? this.mysteryShuffledIndices
+        : [...Array(this.participants.length).keys()];
+
+      drawOrder.forEach((originalIndex, slotIndex) => {
+        const startAngle = slotIndex * sliceAngle;
+        const endAngle = startAngle + sliceAngle;
+        const participant = this.participants[originalIndex];
+
+        // Draw slice - use mystery colors if in mystery mode
+        ctx.beginPath();
+        ctx.moveTo(centerX, centerY);
+        ctx.arc(centerX, centerY, radius, startAngle, endAngle);
+        ctx.closePath();
+        
+        // Use mystery colors in mystery mode, otherwise use normal colors
+        if (this.mysteryMode && !this.mysteryRevealed && this.mysteryColors.length > slotIndex) {
+          ctx.fillStyle = this.mysteryColors[slotIndex];
+        } else {
+          ctx.fillStyle = this.colors[originalIndex % this.colors.length];
+        }
+        ctx.fill();
+        ctx.strokeStyle = '#ffffff';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+
+        // Draw text
+        ctx.save();
+        ctx.translate(centerX, centerY);
+        ctx.rotate(startAngle + sliceAngle / 2);
+        ctx.textAlign = 'right';
+        ctx.textBaseline = 'middle';
+        ctx.fillStyle = this.textColor;
+        
+        // Build font string with options
+        const fontWeight = this.fontBold ? 'bold' : 'normal';
+        const fontStyle = this.fontItalic ? 'italic' : 'normal';
+        ctx.font = `${fontStyle} ${fontWeight} ${this.fontSize}px ${this.fontFamily}`;
+        
+        // Add text shadow if enabled
+        if (this.textShadow) {
+          ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
+          ctx.shadowBlur = 4;
+          ctx.shadowOffsetX = 2;
+          ctx.shadowOffsetY = 2;
+        }
+        
+        // Mystery mode: show "?" instead of names
+        let displayName: string;
+        if (this.mysteryMode && !this.mysteryRevealed) {
+          displayName = '❓';
+          ctx.font = `bold ${this.fontSize + 4}px ${this.fontFamily}`;
+        } else {
+          displayName = participant;
+          // Truncate long names based on maxChars setting
+          if (displayName.length > this.maxChars) {
+            displayName = displayName.substring(0, this.maxChars - 2) + '...';
+          }
+        }
+        
+        ctx.fillText(displayName, radius - 20, 0);
+        
+        // Reset shadow
+        ctx.shadowColor = 'transparent';
+        ctx.shadowBlur = 0;
+        ctx.shadowOffsetX = 0;
+        ctx.shadowOffsetY = 0;
+        
+        ctx.restore();
+      });
+
+      ctx.restore();
+
+      // Draw pointer based on style
+      this.drawPointer(ctx, centerX, centerY, radius);
+
+      // Draw center based on style
+      this.drawCenter(ctx, centerX, centerY);
+    }
+
+    private drawPointer(ctx: CanvasRenderingContext2D, centerX: number, centerY: number, radius: number): void {
+      ctx.save();
+      ctx.fillStyle = this.pointerColor;
+      ctx.strokeStyle = '#ffffff';
+      ctx.lineWidth = 2;
+
+      const pointerX = centerX + radius + 5;
+      const pointerY = centerY;
+
+      switch (this.pointerStyle) {
+        case 'triangle':
+          ctx.beginPath();
+          ctx.moveTo(pointerX + 25, pointerY);
+          ctx.lineTo(pointerX, pointerY - 15);
+          ctx.lineTo(pointerX, pointerY + 15);
+          ctx.closePath();
+          ctx.fill();
+          ctx.stroke();
+          break;
+        
+        case 'arrow':
+          ctx.beginPath();
+          ctx.moveTo(pointerX + 30, pointerY);
+          ctx.lineTo(pointerX + 10, pointerY - 12);
+          ctx.lineTo(pointerX + 10, pointerY - 5);
+          ctx.lineTo(pointerX - 5, pointerY - 5);
+          ctx.lineTo(pointerX - 5, pointerY + 5);
+          ctx.lineTo(pointerX + 10, pointerY + 5);
+          ctx.lineTo(pointerX + 10, pointerY + 12);
+          ctx.closePath();
+          ctx.fill();
+          ctx.stroke();
+          break;
+        
+        case 'diamond':
+          ctx.beginPath();
+          ctx.moveTo(pointerX + 20, pointerY);
+          ctx.lineTo(pointerX + 10, pointerY - 12);
+          ctx.lineTo(pointerX, pointerY);
+          ctx.lineTo(pointerX + 10, pointerY + 12);
+          ctx.closePath();
+          ctx.fill();
+          ctx.stroke();
+          break;
+      }
+
+      ctx.restore();
+    }
+
+    private drawCenter(ctx: CanvasRenderingContext2D, centerX: number, centerY: number): void {
+      switch (this.centerStyle) {
+        case 'classic':
+          ctx.beginPath();
+          ctx.arc(centerX, centerY, 30, 0, 2 * Math.PI);
+          ctx.fillStyle = '#1F2937';
+          ctx.fill();
+          ctx.strokeStyle = '#ffffff';
+          ctx.lineWidth = 3;
+          ctx.stroke();
+          break;
+        
+        case 'logo':
+          // Draw gradient circle with roulette icon
+          const gradient = ctx.createRadialGradient(centerX, centerY, 0, centerX, centerY, 35);
+          gradient.addColorStop(0, '#8B5CF6');
+          gradient.addColorStop(1, '#6D28D9');
+          ctx.beginPath();
+          ctx.arc(centerX, centerY, 35, 0, 2 * Math.PI);
+          ctx.fillStyle = gradient;
+          ctx.fill();
+          ctx.strokeStyle = '#ffffff';
+          ctx.lineWidth = 3;
+          ctx.stroke();
+          // Draw icon
+          ctx.fillStyle = '#ffffff';
+          ctx.font = 'bold 24px sans-serif';
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.fillText('🎰', centerX, centerY);
+          break;
+        
+        case 'spin':
+          // Draw "SPIN" button style
+          const spinGradient = ctx.createRadialGradient(centerX, centerY, 0, centerX, centerY, 40);
+          spinGradient.addColorStop(0, '#22C55E');
+          spinGradient.addColorStop(1, '#16A34A');
+          ctx.beginPath();
+          ctx.arc(centerX, centerY, 40, 0, 2 * Math.PI);
+          ctx.fillStyle = spinGradient;
+          ctx.fill();
+          ctx.strokeStyle = '#ffffff';
+          ctx.lineWidth = 4;
+          ctx.stroke();
+          // Draw text
+          ctx.fillStyle = '#ffffff';
+          ctx.font = 'bold 14px sans-serif';
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.fillText('GIRAR', centerX, centerY);
+          break;
+        
+        case 'none':
+          // No center drawn
+          break;
+      }
+    }
+
+    private getSelectedSpeed(): number {
+      const selected = document.querySelector('input[name="speed"]:checked') as HTMLInputElement;
+      return parseInt(selected?.value || '3');
+    }
+
+    private handleSpin(): void {
+      const mode = this.getGameMode();
+      
+      switch (mode) {
+        case 'winner':
+        case 'eliminate':
+          this.spin();
+          break;
+        case 'teams':
+          this.createTeams();
+          break;
+        case 'order':
+          this.createRandomOrder();
+          break;
+      }
+    }
+
+    private handleRandomSelect(): void {
+      const mode = this.getGameMode();
+      
+      switch (mode) {
+        case 'winner':
+        case 'eliminate':
+          this.randomSelect();
+          break;
+        case 'teams':
+          this.createTeams();
+          break;
+        case 'order':
+          this.createRandomOrder();
+          break;
+      }
+    }
+
+    private spin(): void {
+      if (this.isSpinning || this.participants.length < 2) return;
+      
+      this.isSpinning = true;
+      this.hideWinner();
+      this.setButtonsDisabled(true);
+
+      // Generate cryptographically secure random seed for Provably Fair
+      const seedArray = new Uint32Array(4);
+      crypto.getRandomValues(seedArray);
+      this.currentSpinSeed = Array.from(seedArray).map(n => n.toString(16).padStart(8, '0')).join('');
+      
+      // Use the seed to generate a deterministic random value
+      const randomValue = (seedArray[0] ^ seedArray[1] ^ seedArray[2] ^ seedArray[3]) / 0xFFFFFFFF;
+
+      const duration = this.getSelectedSpeed() * 1000;
+      const spins = this.minSpins + randomValue * (this.maxSpins - this.minSpins);
+      const totalRotation = spins * 2 * Math.PI;
+      const startRotation = this.currentRotation;
+      const startTime = performance.now();
+      
+      // Store participants at spin time for Provably Fair verification
+      const participantsAtSpinTime = [...this.participants];
+      const spinTotalRotation = totalRotation;
+      
+      // Troll mode: determine fake winner angles (land on specific participants)
+      const isTrollMode = this.trollMode;
+      const trollFakeStops = isTrollMode ? 2 + Math.floor(Math.random() * 2) : 0; // 2-3 fake stops
+      let trollCurrentStop = 0;
+      let trollPausePhase = false;
+      let trollPauseStart = 0;
+      
+      // Select random fake winner angles (different participants)
+      const trollFakeAngles: number[] = [];
+      if (isTrollMode && this.participants.length > 2) {
+        const sliceAngle = (2 * Math.PI) / this.participants.length;
+        const finalAngle = (startRotation + totalRotation) % (2 * Math.PI);
+        const finalWinnerIndex = Math.floor((3 * Math.PI / 2 - finalAngle + 2 * Math.PI) % (2 * Math.PI) / sliceAngle);
+        
+        // Pick random participants as fake winners (not the real winner)
+        const availableIndices = Array.from({length: this.participants.length}, (_, i) => i)
+          .filter(i => i !== finalWinnerIndex);
+        
+        for (let i = 0; i < trollFakeStops; i++) {
+          const fakeWinnerIndex = availableIndices[Math.floor(Math.random() * availableIndices.length)];
+          // Calculate angle that would make this participant win
+          const targetAngle = startRotation + (3 + i) * 2 * Math.PI + (3 * Math.PI / 2 - fakeWinnerIndex * sliceAngle);
+          trollFakeAngles.push(targetAngle);
+          availableIndices.splice(availableIndices.indexOf(fakeWinnerIndex), 1);
+        }
+      }
+      
+      // Play spin start sound
+      if (this.soundEnabled) {
+        this.playSpinSound();
+      }
+
+      const animate = (currentTime: number) => {
+        const elapsed = currentTime - startTime;
+        
+        // Handle troll pause
+        if (trollPausePhase) {
+          if (currentTime - trollPauseStart > 1000) { // Pause for 1 second
+            trollPausePhase = false;
+            trollCurrentStop++;
+            this.playTrollSound(); // Play "gotcha" sound
+          } else {
+            this.drawWheel();
+            requestAnimationFrame(animate);
+            return;
+          }
+        }
+        
+        let progress = Math.min(elapsed / duration, 1);
+        
+        // Troll mode: slow down and stop at fake winner angles
+        if (isTrollMode && trollCurrentStop < trollFakeStops && !trollPausePhase) {
+          const targetAngle = trollFakeAngles[trollCurrentStop];
+          const currentAngle = startRotation + totalRotation * progress;
+          
+          // Start slowing when we're close to the fake winner
+          if (currentAngle >= targetAngle - 0.5 && currentAngle < targetAngle + 0.1) {
+            // Snap to the fake winner and pause
+            this.currentRotation = targetAngle;
+            trollPausePhase = true;
+            trollPauseStart = currentTime;
+            this.drawWheel();
+            requestAnimationFrame(animate);
+            return;
+          }
+        }
+        
+        const easedProgress = this.applyEasing(progress);
+        
+        this.currentRotation = startRotation + totalRotation * easedProgress;
+        this.drawWheel();
+        
+        // Play tick sound during spin
+        if (this.soundEnabled && this.tickSoundEnabled && progress < 1) {
+          const tickInterval = 50 + (progress * 200); // Ticks slow down as wheel slows
+          if (currentTime - this.lastTickTime > tickInterval) {
+            this.playTickSound();
+            this.lastTickTime = currentTime;
+          }
+        }
+
+        if (progress < 1 || trollPausePhase) {
+          requestAnimationFrame(animate);
+        } else {
+          this.isSpinning = false;
+          this.setButtonsDisabled(false);
+          this.showWinner(participantsAtSpinTime, spinTotalRotation);
+        }
+      };
+
+      requestAnimationFrame(animate);
+    }
+    
+    private playTrollSound(): void {
+      if (!this.audioContext) this.initAudioContext();
+      if (!this.audioContext) return;
+      
+      // Play a "Gotcha! Psych!" sound
+      const now = this.audioContext.currentTime;
+      
+      // First part - rising "Ha!"
+      const osc1 = this.audioContext.createOscillator();
+      const gain1 = this.audioContext.createGain();
+      
+      osc1.connect(gain1);
+      gain1.connect(this.audioContext.destination);
+      
+      osc1.frequency.setValueAtTime(300, now);
+      osc1.frequency.linearRampToValueAtTime(900, now + 0.1);
+      osc1.type = 'square';
+      
+      gain1.gain.setValueAtTime(this.soundVolume * 0.3, now);
+      gain1.gain.exponentialRampToValueAtTime(0.01, now + 0.15);
+      
+      osc1.start(now);
+      osc1.stop(now + 0.2);
+      
+      // Second part - descending "Ha ha!"
+      const osc2 = this.audioContext.createOscillator();
+      const gain2 = this.audioContext.createGain();
+      
+      osc2.connect(gain2);
+      gain2.connect(this.audioContext.destination);
+      
+      osc2.frequency.setValueAtTime(800, now + 0.15);
+      osc2.frequency.exponentialRampToValueAtTime(200, now + 0.35);
+      osc2.type = 'sawtooth';
+      
+      gain2.gain.setValueAtTime(this.soundVolume * 0.25, now + 0.15);
+      gain2.gain.exponentialRampToValueAtTime(0.01, now + 0.4);
+      
+      osc2.start(now + 0.15);
+      osc2.stop(now + 0.45);
+    }
+    
+    private applyEasing(progress: number): number {
+      switch (this.easingType) {
+        case 'linear':
+          return progress;
+        
+        case 'easeOut':
+          return 1 - Math.pow(1 - progress, 3);
+        
+        case 'bounce':
+          if (progress < 0.8) {
+            return 1 - Math.pow(1 - progress / 0.8, 3) * 0.9;
+          } else {
+            const bounceProgress = (progress - 0.8) / 0.2;
+            return 0.9 + Math.sin(bounceProgress * Math.PI) * 0.1;
+          }
+        
+        case 'elastic':
+          if (progress === 0 || progress === 1) return progress;
+          const p = 0.3;
+          const s = p / 4;
+          return Math.pow(2, -10 * progress) * Math.sin((progress - s) * (2 * Math.PI) / p) + 1;
+        
+        default:
+          return 1 - Math.pow(1 - progress, 3);
+      }
+    }
+    
+    // Audio methods
+    private initAudioContext(): void {
+      try {
+        this.audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+      } catch (e) {
+        console.warn('Web Audio API not supported');
+      }
+    }
+    
+    private playTickSound(): void {
+      if (!this.audioContext) this.initAudioContext();
+      if (!this.audioContext) return;
+      
+      const oscillator = this.audioContext.createOscillator();
+      const gainNode = this.audioContext.createGain();
+      
+      oscillator.connect(gainNode);
+      gainNode.connect(this.audioContext.destination);
+      
+      oscillator.frequency.value = 800 + Math.random() * 400;
+      oscillator.type = 'sine';
+      
+      gainNode.gain.setValueAtTime(this.soundVolume * 0.3, this.audioContext.currentTime);
+      gainNode.gain.exponentialRampToValueAtTime(0.01, this.audioContext.currentTime + 0.05);
+      
+      oscillator.start(this.audioContext.currentTime);
+      oscillator.stop(this.audioContext.currentTime + 0.05);
+    }
+    
+    private playSpinSound(): void {
+      if (!this.audioContext) this.initAudioContext();
+      if (!this.audioContext) return;
+      
+      const oscillator = this.audioContext.createOscillator();
+      const gainNode = this.audioContext.createGain();
+      
+      oscillator.connect(gainNode);
+      gainNode.connect(this.audioContext.destination);
+      
+      oscillator.frequency.setValueAtTime(200, this.audioContext.currentTime);
+      oscillator.frequency.exponentialRampToValueAtTime(600, this.audioContext.currentTime + 0.2);
+      oscillator.type = 'sawtooth';
+      
+      gainNode.gain.setValueAtTime(this.soundVolume * 0.2, this.audioContext.currentTime);
+      gainNode.gain.exponentialRampToValueAtTime(0.01, this.audioContext.currentTime + 0.3);
+      
+      oscillator.start(this.audioContext.currentTime);
+      oscillator.stop(this.audioContext.currentTime + 0.3);
+    }
+    
+    private playWinSound(): void {
+      if (!this.audioContext) this.initAudioContext();
+      if (!this.audioContext) return;
+      
+      // Play victory fanfare - multiple notes
+      const notes = [523.25, 659.25, 783.99, 1046.50]; // C5, E5, G5, C6
+      
+      notes.forEach((freq, i) => {
+        const oscillator = this.audioContext!.createOscillator();
+        const gainNode = this.audioContext!.createGain();
+        
+        oscillator.connect(gainNode);
+        gainNode.connect(this.audioContext!.destination);
+        
+        oscillator.frequency.value = freq;
+        oscillator.type = 'sine';
+        
+        const startTime = this.audioContext!.currentTime + i * 0.15;
+        gainNode.gain.setValueAtTime(0, startTime);
+        gainNode.gain.linearRampToValueAtTime(this.soundVolume * 0.4, startTime + 0.05);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, startTime + 0.4);
+        
+        oscillator.start(startTime);
+        oscillator.stop(startTime + 0.4);
+      });
+    }
+
+    private showWinner(participantsAtSpinTime?: string[], spinTotalRotation?: number): void {
+      const mode = this.getGameMode();
+      const sliceAngle = (2 * Math.PI) / this.participants.length;
+      const normalizedRotation = ((this.currentRotation % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI);
+      const pointerAngle = (3 * Math.PI / 2 - normalizedRotation + 2 * Math.PI) % (2 * Math.PI);
+      const visualSlotIndex = Math.floor(pointerAngle / sliceAngle);
+      
+      // In mystery mode, the visual slot corresponds to a shuffled participant
+      let winnerIndex: number;
+      if (this.mysteryMode && !this.mysteryRevealed && this.mysteryShuffledIndices.length === this.participants.length) {
+        winnerIndex = this.mysteryShuffledIndices[visualSlotIndex];
+      } else {
+        winnerIndex = visualSlotIndex;
+      }
+      
+      const winner = this.participants[winnerIndex];
+      
+      // Store Provably Fair data
+      this.lastSpinData = {
+        seed: this.currentSpinSeed,
+        participants: participantsAtSpinTime || [...this.participants],
+        totalRotation: spinTotalRotation || 0,
+        winnerIndex: winnerIndex,
+        winner: winner,
+        timestamp: new Date()
+      };
+      this.updateProvablyFairPanel();
+      
+      // Handle mystery mode reveal
+      if (this.mysteryMode) {
+        this.revealMysteryWinner(winner, mode);
+        return;
+      }
+      
+      // Play win sound (Christmas or normal)
+      if (this.soundEnabled && this.winSoundEnabled) {
+        if (this.christmasMode && this.christmasSounds) {
+          this.playChristmasBells();
+        } else {
+          this.playWinSound();
+        }
+      }
+      
+      // Trigger celebration effects
+      if (mode !== 'eliminate') {
+        if (this.flashEnabled) {
+          this.triggerFlashEffect();
+        }
+        if (this.confettiEnabled) {
+          // Use Christmas confetti colors if in Christmas mode
+          this.triggerConfetti();
+        }
+      }
+      
+      this.displayWinnerCard(winner, mode);
+    }
+    
+    private revealMysteryWinner(winner: string, mode: GameMode): void {
+      // First, reveal all names on the wheel with animation
+      this.mysteryRevealed = true;
+      this.drawWheel();
+      
+      // Play mysterious reveal sound
+      this.playMysteryRevealSound();
+      
+      const display = document.getElementById('winnerDisplay')!;
+      const nameElement = document.getElementById('winnerName')!;
+      const labelElement = document.getElementById('winnerLabel')!;
+      const cardElement = document.getElementById('winnerCard')!;
+      const continueBtn = document.getElementById('continueEliminationBtn')!;
+      const removeBtn = document.getElementById('removeWinnerBtn')!;
+      
+      // Show suspenseful "revealing" message first
+      labelElement.textContent = '🔮 Revelando...';
+      nameElement.textContent = '???';
+      cardElement.className = 'bg-linear-to-r from-pink-500 via-purple-500 to-indigo-500 text-white px-8 py-4 rounded-2xl shadow-lg';
+      display.classList.remove('hidden');
+      continueBtn.classList.add('hidden');
+      
+      // After delay, reveal the winner with animation
+      setTimeout(() => {
+        nameElement.textContent = winner;
+        nameElement.classList.add('mystery-reveal');
+        labelElement.textContent = '✨ ¡Revelado!';
+        
+        // Play win sound
+        if (this.soundEnabled && this.winSoundEnabled) {
+          this.playWinSound();
+        }
+        
+        // Trigger celebration
+        if (this.flashEnabled) {
+          this.triggerFlashEffect();
+        }
+        if (this.confettiEnabled) {
+          this.triggerConfetti();
+        }
+        
+        // After animation, update to normal winner display
+        setTimeout(() => {
+          nameElement.classList.remove('mystery-reveal');
+          if (mode === 'eliminate') {
+            labelElement.textContent = '💀 ¡Eliminado!';
+            cardElement.className = 'bg-linear-to-r from-red-500 to-red-700 text-white px-8 py-4 rounded-2xl shadow-lg';
+            continueBtn.classList.remove('hidden');
+            removeBtn.textContent = '❌ Eliminar y continuar';
+          } else {
+            labelElement.textContent = '🎉 ¡Ganador!';
+            cardElement.className = 'bg-linear-to-r from-yellow-400 to-orange-500 text-black px-8 py-4 rounded-2xl shadow-lg';
+            removeBtn.textContent = '❌ Quitar de la lista';
+          }
+          
+          nameElement.dataset.winner = winner;
+          this.addToHistory(mode === 'eliminate' ? 'Eliminación' : 'Ganador', winner);
+          
+          if (mode === 'eliminate') {
+            this.updateEliminationProgress();
+          }
+          
+          // Reset mystery for next spin
+          this.mysteryRevealed = false;
+          this.drawWheel();
+        }, 1500);
+      }, 1000);
+    }
+    
+    private playMysteryRevealSound(): void {
+      if (!this.audioContext) this.initAudioContext();
+      if (!this.audioContext) return;
+      
+      // Mysterious ascending arpeggio
+      const notes = [220, 277.18, 329.63, 440, 554.37, 659.25, 880];
+      
+      notes.forEach((freq, i) => {
+        const osc = this.audioContext!.createOscillator();
+        const gain = this.audioContext!.createGain();
+        
+        osc.connect(gain);
+        gain.connect(this.audioContext!.destination);
+        
+        osc.type = 'sine';
+        osc.frequency.value = freq;
+        
+        const startTime = this.audioContext!.currentTime + i * 0.1;
+        gain.gain.setValueAtTime(0, startTime);
+        gain.gain.linearRampToValueAtTime(this.soundVolume * 0.2, startTime + 0.05);
+        gain.gain.exponentialRampToValueAtTime(0.01, startTime + 0.3);
+        
+        osc.start(startTime);
+        osc.stop(startTime + 0.4);
+      });
+    }
+    
+    private displayWinnerCard(winner: string, mode: GameMode): void {
+      const display = document.getElementById('winnerDisplay')!;
+      const nameElement = document.getElementById('winnerName')!;
+      const labelElement = document.getElementById('winnerLabel')!;
+      const cardElement = document.getElementById('winnerCard')!;
+      const continueBtn = document.getElementById('continueEliminationBtn')!;
+      const removeBtn = document.getElementById('removeWinnerBtn')!;
+      
+      nameElement.textContent = winner;
+      nameElement.dataset.winner = winner;
+      
+      if (mode === 'eliminate') {
+        labelElement.textContent = '💀 ¡Eliminado!';
+        cardElement.className = 'bg-linear-to-r from-red-500 to-red-700 text-white px-8 py-4 rounded-2xl shadow-lg';
+        continueBtn.classList.remove('hidden');
+        removeBtn.textContent = '❌ Eliminar y continuar';
+      } else {
+        labelElement.textContent = '🎉 ¡Ganador!';
+        cardElement.className = 'bg-linear-to-r from-yellow-400 to-orange-500 text-black px-8 py-4 rounded-2xl shadow-lg';
+        continueBtn.classList.add('hidden');
+        removeBtn.textContent = '❌ Quitar de la lista';
+      }
+      
+      display.classList.remove('hidden');
+      
+      // Add to history
+      this.addToHistory(mode === 'eliminate' ? 'Eliminación' : 'Ganador', winner);
+      
+      // Update elimination progress
+      if (mode === 'eliminate') {
+        this.updateEliminationProgress();
+      }
+    }
+
+    private updateEliminationProgress(): void {
+      const progressSection = document.getElementById('eliminationProgress')!;
+      const eliminatedList = document.getElementById('eliminatedList')!;
+      const remainingCount = document.getElementById('remainingCount')!;
+      
+      // Clear and rebuild safely using DOM APIs
+      eliminatedList.innerHTML = '';
+      this.eliminatedParticipants.forEach(name => {
+        const span = document.createElement('span');
+        span.className = 'inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-red-500/50 text-white line-through';
+        span.textContent = name; // Safe - textContent escapes HTML
+        eliminatedList.appendChild(span);
+      });
+      
+      remainingCount.textContent = this.participants.length.toString();
+      progressSection.classList.remove('hidden');
+    }
+    
+    private updateProvablyFairPanel(): void {
+      if (!this.lastSpinData) return;
+      
+      const pfSeed = document.getElementById('pfSeed');
+      const pfParticipants = document.getElementById('pfParticipants');
+      const pfRotation = document.getElementById('pfRotation');
+      const pfWinnerCalc = document.getElementById('pfWinnerCalc');
+      const pfResult = document.getElementById('pfResult');
+      
+      if (pfSeed) {
+        pfSeed.textContent = this.lastSpinData.seed;
+        pfSeed.title = 'Seed criptográfico generado por crypto.getRandomValues()';
+      }
+      
+      if (pfParticipants) {
+        const participantsList = this.lastSpinData.participants.map((p, i) => 
+          `${i}: ${p}`
+        ).join(', ');
+        pfParticipants.textContent = `[${this.lastSpinData.participants.length}] ${participantsList}`;
+        pfParticipants.title = 'Lista de participantes en el momento del giro';
+      }
+      
+      if (pfRotation) {
+        const rotationDegrees = (this.lastSpinData.totalRotation * 180 / Math.PI).toFixed(2);
+        const rotationSpins = (this.lastSpinData.totalRotation / (2 * Math.PI)).toFixed(2);
+        pfRotation.textContent = `${rotationSpins} vueltas (${rotationDegrees}°)`;
+        pfRotation.title = 'Rotación total de la ruleta';
+      }
+      
+      if (pfWinnerCalc) {
+        const sliceAngle = 360 / this.lastSpinData.participants.length;
+        const normalizedDegrees = ((this.lastSpinData.totalRotation * 180 / Math.PI) % 360).toFixed(2);
+        pfWinnerCalc.textContent = `Índice = floor((270° - ${normalizedDegrees}°) / ${sliceAngle.toFixed(2)}°) mod ${this.lastSpinData.participants.length} = ${this.lastSpinData.winnerIndex}`;
+        pfWinnerCalc.title = 'Cálculo matemático del ganador basado en la posición final';
+      }
+      
+      if (pfResult) {
+        pfResult.textContent = `🎯 ${this.lastSpinData.winner} (índice ${this.lastSpinData.winnerIndex})`;
+        pfResult.title = 'Ganador determinado por el cálculo';
+      }
+    }
+
+    private continueElimination(): void {
+      const nameElement = document.getElementById('winnerName')!;
+      const winner = nameElement.dataset.winner;
+      
+      if (winner) {
+        this.eliminatedParticipants.push(winner);
+        this.removeParticipant(winner);
+        this.updateEliminationProgress();
+        
+        if (this.participants.length === 1) {
+          // We have a final winner!
+          const finalWinner = this.participants[0];
+          const display = document.getElementById('winnerDisplay')!;
+          const labelElement = document.getElementById('winnerLabel')!;
+          const cardElement = document.getElementById('winnerCard')!;
+          const nameElement = document.getElementById('winnerName')!;
+          const continueBtn = document.getElementById('continueEliminationBtn')!;
+          const removeBtn = document.getElementById('removeWinnerBtn')!;
+          
+          labelElement.textContent = '🏆 ¡CAMPEÓN FINAL!';
+          cardElement.className = 'bg-linear-to-r from-yellow-400 via-yellow-500 to-amber-500 text-black px-8 py-4 rounded-2xl shadow-lg animate-pulse';
+          nameElement.textContent = finalWinner;
+          nameElement.dataset.winner = finalWinner;
+          continueBtn.classList.add('hidden');
+          removeBtn.classList.add('hidden');
+          display.classList.remove('hidden');
+          
+          this.addToHistory('Campeón Final', finalWinner);
+        } else if (this.participants.length > 1) {
+          this.spin();
+        }
+      }
+    }
+
+    private hideWinner(): void {
+      const display = document.getElementById('winnerDisplay')!;
+      display.classList.add('hidden');
+      
+      const removeBtn = document.getElementById('removeWinnerBtn')!;
+      removeBtn.classList.remove('hidden');
+    }
+
+    private removeWinner(): void {
+      const nameElement = document.getElementById('winnerName')!;
+      const winner = nameElement.dataset.winner;
+      const mode = this.getGameMode();
+      
+      if (winner) {
+        if (mode === 'eliminate') {
+          this.eliminatedParticipants.push(winner);
+        }
+        this.removeParticipant(winner);
+        
+        if (mode === 'eliminate') {
+          this.updateEliminationProgress();
+          
+          if (this.participants.length === 1) {
+            // We have a final winner!
+            const finalWinner = this.participants[0];
+            const display = document.getElementById('winnerDisplay')!;
+            const labelElement = document.getElementById('winnerLabel')!;
+            const cardElement = document.getElementById('winnerCard')!;
+            const winnerNameElement = document.getElementById('winnerName')!;
+            const continueBtn = document.getElementById('continueEliminationBtn')!;
+            const removeBtn = document.getElementById('removeWinnerBtn')!;
+            
+            labelElement.textContent = '🏆 ¡CAMPEÓN FINAL!';
+            cardElement.className = 'bg-linear-to-r from-yellow-400 via-yellow-500 to-amber-500 text-black px-8 py-4 rounded-2xl shadow-lg animate-pulse';
+            winnerNameElement.textContent = finalWinner;
+            winnerNameElement.dataset.winner = finalWinner;
+            continueBtn.classList.add('hidden');
+            removeBtn.classList.add('hidden');
+            display.classList.remove('hidden');
+            
+            this.addToHistory('Campeón Final', finalWinner);
+          }
+        }
+      }
+    }
+
+    private randomSelect(): void {
+      if (this.isSpinning || this.participants.length < 1) return;
+
+      this.isSpinning = true;
+      this.hideWinner();
+      this.setButtonsDisabled(true);
+
+      const duration = this.getSelectedSpeed() * 1000;
+      const startTime = performance.now();
+      let lastHighlight = -1;
+
+      const flash = (currentTime: number) => {
+        const elapsed = currentTime - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        
+        const interval = 50 + progress * 200;
+        const currentIndex = Math.floor((elapsed / interval) % this.participants.length);
+        
+        if (currentIndex !== lastHighlight) {
+          lastHighlight = currentIndex;
+          this.highlightParticipant(currentIndex);
+        }
+
+        if (progress < 1) {
+          requestAnimationFrame(flash);
+        } else {
+          const mode = this.getGameMode();
+          const winnerIndex = Math.floor(Math.random() * this.participants.length);
+          this.highlightParticipant(winnerIndex);
+          
+          const display = document.getElementById('winnerDisplay')!;
+          const nameElement = document.getElementById('winnerName')!;
+          const labelElement = document.getElementById('winnerLabel')!;
+          const cardElement = document.getElementById('winnerCard')!;
+          const continueBtn = document.getElementById('continueEliminationBtn')!;
+          const removeBtn = document.getElementById('removeWinnerBtn')!;
+          
+          const winner = this.participants[winnerIndex];
+          nameElement.textContent = winner;
+          nameElement.dataset.winner = winner;
+          
+          if (mode === 'eliminate') {
+            labelElement.textContent = '💀 ¡Eliminado!';
+            cardElement.className = 'bg-linear-to-r from-red-500 to-red-700 text-white px-8 py-4 rounded-2xl shadow-lg';
+            continueBtn.classList.remove('hidden');
+            removeBtn.textContent = '❌ Eliminar y continuar';
+            this.updateEliminationProgress();
+          } else {
+            labelElement.textContent = '🎉 ¡Ganador!';
+            cardElement.className = 'bg-linear-to-r from-yellow-400 to-orange-500 text-black px-8 py-4 rounded-2xl shadow-lg';
+            continueBtn.classList.add('hidden');
+            removeBtn.textContent = '❌ Quitar de la lista';
+          }
+          
+          display.classList.remove('hidden');
+          
+          this.addToHistory(mode === 'eliminate' ? 'Eliminación' : 'Ganador', winner);
+          
+          this.isSpinning = false;
+          this.setButtonsDisabled(false);
+        }
+      };
+
+      requestAnimationFrame(flash);
+    }
+
+    private createTeams(): void {
+      if (this.participants.length < 2) return;
+      
+      const teamsCountInput = document.getElementById('teamsCount') as HTMLInputElement;
+      const numTeams = Math.min(parseInt(teamsCountInput.value) || 2, this.participants.length);
+      
+      // Shuffle participants
+      const shuffled = [...this.participants].sort(() => Math.random() - 0.5);
+      
+      // Distribute into teams
+      const teams: string[][] = Array.from({ length: numTeams }, () => []);
+      shuffled.forEach((participant, index) => {
+        teams[index % numTeams].push(participant);
+      });
+      
+      // Display teams
+      const teamsContainer = document.getElementById('teamsContainer')!;
+      const teamColors = ['from-blue-500 to-blue-700', 'from-green-500 to-green-700', 'from-purple-500 to-purple-700', 'from-orange-500 to-orange-700', 'from-pink-500 to-pink-700', 'from-teal-500 to-teal-700', 'from-red-500 to-red-700', 'from-indigo-500 to-indigo-700', 'from-yellow-500 to-yellow-700', 'from-cyan-500 to-cyan-700'];
+      
+      teamsContainer.innerHTML = teams.map((team, index) => `
+        <div class="bg-gradient-to-br ${teamColors[index % teamColors.length]} rounded-xl p-4 shadow-lg">
+          <h3 class="text-white font-bold text-lg mb-3">👥 Equipo ${index + 1}</h3>
+          <ul class="space-y-1">
+            ${team.map(member => `<li class="text-white/90">• ${this.escapeHtml(member)}</li>`).join('')}
+          </ul>
+          <p class="mt-2 text-white/70 text-sm">${team.length} miembro${team.length !== 1 ? 's' : ''}</p>
+        </div>
+      `).join('');
+      
+      document.getElementById('teamsResult')!.classList.remove('hidden');
+      this.hideWinner();
+      
+      this.addToHistory('Equipos', `${numTeams} equipos creados`);
+    }
+
+    private createRandomOrder(): void {
+      if (this.participants.length < 2) return;
+      
+      // Animate shuffling
+      this.isSpinning = true;
+      this.setButtonsDisabled(true);
+      
+      const duration = this.getSelectedSpeed() * 1000;
+      const startTime = performance.now();
+      
+      const shuffleAnimation = (currentTime: number) => {
+        const elapsed = currentTime - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        
+        // Shuffle and redraw during animation
+        if (progress < 1) {
+          this.shuffleParticipants();
+          requestAnimationFrame(shuffleAnimation);
+        } else {
+          // Final shuffle and display
+          this.shuffleParticipants();
+          
+          const orderList = document.getElementById('orderList')!;
+          orderList.innerHTML = '';
+          this.participants.forEach((name, index) => {
+            const li = document.createElement('li');
+            li.className = 'flex items-center gap-3 text-white';
+            
+            const span1 = document.createElement('span');
+            span1.className = 'flex-shrink-0 w-8 h-8 rounded-full bg-linear-to-r from-purple-500 to-pink-500 flex items-center justify-center font-bold text-sm';
+            span1.textContent = String(index + 1);
+            
+            const span2 = document.createElement('span');
+            span2.textContent = name;
+            
+            li.appendChild(span1);
+            li.appendChild(span2);
+            orderList.appendChild(li);
+          });
+          
+          document.getElementById('orderResult')!.classList.remove('hidden');
+          this.hideWinner();
+          
+          this.addToHistory('Orden', this.participants.join(' → '));
+          
+          this.isSpinning = false;
+          this.setButtonsDisabled(false);
+        }
+      };
+      
+      requestAnimationFrame(shuffleAnimation);
+    }
+
+    private addToHistory(mode: string, result: string): void {
+      this.history.unshift({ mode, result, timestamp: new Date() });
+      if (this.history.length > 20) this.history.pop();
+      this.updateHistoryDisplay();
+    }
+
+    private updateHistoryDisplay(): void {
+      const section = document.getElementById('historySection')!;
+      const list = document.getElementById('historyList')!;
+      
+      if (this.history.length === 0) {
+        section.classList.add('hidden');
+        return;
+      }
+      
+      section.classList.remove('hidden');
+      list.innerHTML = this.history.map(item => `
+        <div class="flex items-center justify-between bg-white/5 rounded-lg px-4 py-2">
+          <div>
+            <span class="text-purple-400 font-medium">${this.escapeHtml(item.mode)}:</span>
+            <span class="text-white ml-2">${this.escapeHtml(item.result)}</span>
+          </div>
+          <span class="text-gray-500 text-sm">${item.timestamp.toLocaleTimeString()}</span>
+        </div>
+      `).join('');
+    }
+
+    private clearHistory(): void {
+      this.history = [];
+      this.updateHistoryDisplay();
+    }
+
+    private highlightParticipant(index: number): void {
+      const list = document.getElementById('participantsList')!;
+      const items = list.querySelectorAll('span');
+      items.forEach((item, i) => {
+        if (i === index) {
+          item.classList.add('ring-4', 'ring-yellow-400', 'scale-110');
+        } else {
+          item.classList.remove('ring-4', 'ring-yellow-400', 'scale-110');
+        }
+      });
+    }
+
+    private setButtonsDisabled(disabled: boolean): void {
+      const spinBtn = document.getElementById('spinBtn') as HTMLButtonElement;
+      const randomBtn = document.getElementById('randomBtn') as HTMLButtonElement;
+      const shuffleBtn = document.getElementById('shuffleBtn') as HTMLButtonElement;
+      spinBtn.disabled = disabled;
+      randomBtn.disabled = disabled;
+      shuffleBtn.disabled = disabled;
+    }
+    
+    // Celebration effects
+    private triggerFlashEffect(): void {
+      const flash = document.createElement('div');
+      flash.className = 'fixed inset-0 bg-white z-50 pointer-events-none';
+      flash.style.animation = 'flash 0.5s ease-out forwards';
+      document.body.appendChild(flash);
+      
+      setTimeout(() => {
+        flash.remove();
+      }, 500);
+    }
+    
+    private triggerConfetti(): void {
+      const container = document.getElementById('rouletteContainer');
+      if (!container) return;
+      
+      // Use Christmas colors if in Christmas mode
+      const defaultColors = ['#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7', '#DDA0DD', '#F7DC6F', '#BB8FCE'];
+      const christmasColors = ['#C41E3A', '#165B33', '#BB2528', '#146B3A', '#F8B229', '#FFFFFF', '#FFD700', '#EA4630'];
+      const colors = (this.christmasMode && this.christmasColors) ? christmasColors : defaultColors;
+      const confettiCount = 100;
+      
+      // Add Christmas-specific confetti shapes
+      const christmasShapes = ['❄', '⭐', '🎄', '🎁', '🔔', '✨'];
+      
+      for (let i = 0; i < confettiCount; i++) {
+        const confetti = document.createElement('div');
+        confetti.className = 'confetti-particle';
+        
+        // Occasionally add Christmas emoji shapes if in Christmas mode
+        const useEmojiShape = this.christmasMode && Math.random() > 0.7;
+        
+        if (useEmojiShape) {
+          confetti.innerHTML = christmasShapes[Math.floor(Math.random() * christmasShapes.length)];
+          confetti.style.cssText = `
+            position: absolute;
+            font-size: ${12 + Math.random() * 12}px;
+            left: ${Math.random() * 100}%;
+            top: -20px;
+            animation: confetti-fall ${2 + Math.random() * 2}s linear forwards;
+            animation-delay: ${Math.random() * 0.5}s;
+            z-index: 100;
+            pointer-events: none;
+          `;
+        } else {
+          confetti.style.cssText = `
+            position: absolute;
+            width: ${5 + Math.random() * 10}px;
+            height: ${5 + Math.random() * 10}px;
+            background: ${colors[Math.floor(Math.random() * colors.length)]};
+            left: ${Math.random() * 100}%;
+            top: -20px;
+            border-radius: ${Math.random() > 0.5 ? '50%' : '0'};
+            animation: confetti-fall ${2 + Math.random() * 2}s linear forwards;
+            animation-delay: ${Math.random() * 0.5}s;
+            transform: rotate(${Math.random() * 360}deg);
+            z-index: 100;
+            pointer-events: none;
+          `;
+        }
+        container.appendChild(confetti);
+        
+        setTimeout(() => {
+          confetti.remove();
+        }, 4500);
+      }
+    }
+
+    private clearAll(): void {
+      if (this.isSpinning) return;
+      this.participants = [];
+      this.eliminatedParticipants = [];
+      this.currentRotation = 0;
+      this.updateParticipantsList();
+      this.drawWheel();
+      this.hideWinner();
+      this.updateParticipantCounter();
+      
+      // Hide all results
+      document.getElementById('eliminationProgress')!.classList.add('hidden');
+      document.getElementById('teamsResult')!.classList.add('hidden');
+      document.getElementById('orderResult')!.classList.add('hidden');
+    }
+    
+    // Import/Export methods
+    private handleFileImport(e: Event): void {
+      const file = (e.target as HTMLInputElement).files?.[0];
+      if (!file) return;
+      
+      // Security: Limit file size (max 1MB)
+      const MAX_FILE_SIZE = 1024 * 1024; // 1MB
+      if (file.size > MAX_FILE_SIZE) {
+        alert('El archivo es demasiado grande. Máximo 1MB.');
+        return;
+      }
+      
+      // Security: Validate file extension
+      const validExtensions = ['.txt', '.csv', '.json'];
+      const fileExt = file.name.toLowerCase().slice(file.name.lastIndexOf('.'));
+      if (!validExtensions.includes(fileExt)) {
+        alert('Formato de archivo no válido. Usa .txt, .csv o .json');
+        return;
+      }
+      
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const content = event.target?.result as string;
+        if (!content || typeof content !== 'string') return;
+        
+        // Security: Limit content length
+        if (content.length > MAX_FILE_SIZE) {
+          alert('El contenido del archivo es demasiado grande.');
+          return;
+        }
+        
+        let names: string[] = [];
+        
+        if (file.name.endsWith('.json')) {
+          try {
+            const data = JSON.parse(content);
+            // Validate JSON structure
+            if (Array.isArray(data)) {
+              names = data.filter((item): item is string => typeof item === 'string');
+            } else if (data && typeof data === 'object' && Array.isArray(data.participants)) {
+              names = data.participants.filter((item: unknown): item is string => typeof item === 'string');
+            } else {
+              alert('Formato JSON no válido. Debe ser un array o {participants: [...]}');
+              return;
+            }
+          } catch {
+            alert('Error al leer el archivo JSON. Verifica que sea válido.');
+            return;
+          }
+        } else if (file.name.endsWith('.csv')) {
+          names = content.split(/[,\n]/).map(n => n.trim()).filter(n => n.length > 0);
+        } else {
+          // txt file - one name per line or comma separated
+          names = content.split(/[,\n]/).map(n => n.trim()).filter(n => n.length > 0);
+        }
+        
+        // Security: Limit number of names
+        const MAX_NAMES = 500;
+        if (names.length > MAX_NAMES) {
+          alert(`Demasiados nombres (${names.length}). Máximo ${MAX_NAMES}.`);
+          names = names.slice(0, MAX_NAMES);
+        }
+        
+        // Sanitize and add names
+        let addedCount = 0;
+        names.forEach(name => {
+          if (this.participants.length >= MAX_NAMES) return;
+          const sanitized = this.sanitizeName(name);
+          if (sanitized && !this.participants.includes(sanitized)) {
+            this.participants.push(sanitized);
+            addedCount++;
+          }
+        });
+        
+        this.updateParticipantsList();
+        this.drawWheel();
+        this.updateParticipantCounter();
+        this.checkParticipantWarnings();
+        
+        if (addedCount > 0) {
+          this.showNotification(`✅ ${addedCount} participante${addedCount !== 1 ? 's' : ''} añadido${addedCount !== 1 ? 's' : ''}`);
+        }
+      };
+      
+      reader.readAsText(file);
+      (e.target as HTMLInputElement).value = ''; // Reset input
+    }
+    
+    private exportParticipants(): void {
+      if (this.participants.length === 0) {
+        alert('No hay participantes para exportar');
+        return;
+      }
+      
+      const data = {
+        participants: this.participants,
+        exportDate: new Date().toISOString()
+      };
+      
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `participantes_${new Date().toLocaleDateString('es-ES').replace(/\//g, '-')}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+    
+    // LocalStorage methods
+    private saveToLocalStorage(): void {
+      const data = {
+        participants: this.participants,
+        settings: {
+          wheelSize: this.wheelSize,
+          colorScheme: this.currentColorScheme,
+          fontSize: this.fontSize,
+          maxChars: this.maxChars,
+          pointerStyle: this.pointerStyle,
+          pointerColor: this.pointerColor,
+          centerStyle: this.centerStyle,
+          fontFamily: this.fontFamily,
+          fontBold: this.fontBold,
+          fontItalic: this.fontItalic,
+          textShadow: this.textShadow,
+          textColor: this.textColor,
+          soundEnabled: this.soundEnabled,
+          tickSoundEnabled: this.tickSoundEnabled,
+          winSoundEnabled: this.winSoundEnabled,
+          soundVolume: this.soundVolume,
+          minSpins: this.minSpins,
+          maxSpins: this.maxSpins,
+          easingType: this.easingType,
+          confettiEnabled: this.confettiEnabled,
+          flashEnabled: this.flashEnabled
+        },
+        savedAt: new Date().toISOString()
+      };
+      
+      try {
+        localStorage.setItem('ruletaSorteos_data', JSON.stringify(data));
+        this.showNotification('✅ Datos guardados correctamente');
+      } catch (e) {
+        alert('Error al guardar los datos');
+      }
+    }
+    
+    private loadFromLocalStorage(): void {
+      try {
+        const saved = localStorage.getItem('ruletaSorteos_data');
+        if (!saved) {
+          this.showNotification('ℹ️ No hay datos guardados');
+          return;
+        }
+        
+        const data = JSON.parse(saved);
+        
+        // Load participants with sanitization
+        if (data.participants && Array.isArray(data.participants)) {
+          // Sanitize each participant name from localStorage
+          this.participants = data.participants
+            .filter((p: unknown): p is string => typeof p === 'string')
+            .map((p: string) => this.sanitizeName(p))
+            .filter((p: string) => p.length > 0)
+            .slice(0, 500); // Max participants limit
+          this.updateParticipantsList();
+          this.updateParticipantCounter();
+        }
+        
+        // Load settings with validation
+        if (data.settings && typeof data.settings === 'object') {
+          const s = data.settings;
+          
+          // Validate wheelSize is a safe number
+          if (typeof s.wheelSize === 'number' && s.wheelSize >= 200 && s.wheelSize <= 800) {
+            this.wheelSize = Math.floor(s.wheelSize);
+            (document.getElementById('wheelSize') as HTMLInputElement).value = this.wheelSize.toString();
+            (document.getElementById('wheelSizeValue') as HTMLElement).textContent = `${this.wheelSize}px`;
+            this.resizeCanvas();
+          }
+          
+          // Validate colorScheme is a known scheme
+          const validSchemes = ['default', 'rainbow', 'pastel', 'neon', 'ocean', 'sunset', 'forest', 'candy', 'custom'];
+          if (typeof s.colorScheme === 'string' && validSchemes.includes(s.colorScheme)) {
+            this.setColorScheme(s.colorScheme);
+          }
+          
+          // Validate fontSize
+          if (typeof s.fontSize === 'number' && s.fontSize >= 8 && s.fontSize <= 24) {
+            this.fontSize = Math.floor(s.fontSize);
+            (document.getElementById('fontSize') as HTMLInputElement).value = this.fontSize.toString();
+            (document.getElementById('fontSizeValue') as HTMLElement).textContent = `${this.fontSize}px`;
+          }
+          if (typeof s.maxChars === 'number' && s.maxChars >= 5 && s.maxChars <= 30) {
+            this.maxChars = Math.floor(s.maxChars);
+            (document.getElementById('maxChars') as HTMLInputElement).value = this.maxChars.toString();
+          }
+          
+          // Validate pointerStyle
+          const validPointers = ['triangle', 'arrow', 'diamond'];
+          if (typeof s.pointerStyle === 'string' && validPointers.includes(s.pointerStyle)) {
+            this.pointerStyle = s.pointerStyle as 'triangle' | 'arrow' | 'diamond';
+          }
+          
+          // Validate pointerColor is a valid hex color
+          if (typeof s.pointerColor === 'string' && /^#[0-9A-Fa-f]{6}$/.test(s.pointerColor)) {
+            this.pointerColor = s.pointerColor;
+            (document.getElementById('pointerColor') as HTMLInputElement).value = s.pointerColor;
+          }
+          
+          // Validate centerStyle
+          const validCenters = ['classic', 'logo', 'spin', 'none'];
+          if (typeof s.centerStyle === 'string' && validCenters.includes(s.centerStyle)) {
+            this.centerStyle = s.centerStyle as 'classic' | 'logo' | 'spin' | 'none';
+          }
+          
+          // Validate fontFamily
+          const validFonts = ['sans-serif', 'serif', 'monospace', 'Arial', 'Georgia', 'Verdana', 'Courier New', 'Comic Sans MS'];
+          if (typeof s.fontFamily === 'string' && validFonts.includes(s.fontFamily)) {
+            this.fontFamily = s.fontFamily;
+            const select = document.getElementById('fontFamily') as HTMLSelectElement;
+            if (select) select.value = s.fontFamily;
+          }
+          if (typeof s.fontBold === 'boolean') {
+            this.fontBold = s.fontBold;
+            const check = document.getElementById('fontBold') as HTMLInputElement;
+            if (check) check.checked = s.fontBold;
+          }
+          if (typeof s.fontItalic === 'boolean') {
+            this.fontItalic = s.fontItalic;
+            const check = document.getElementById('fontItalic') as HTMLInputElement;
+            if (check) check.checked = s.fontItalic;
+          }
+          if (typeof s.textShadow === 'boolean') {
+            this.textShadow = s.textShadow;
+            const check = document.getElementById('textShadow') as HTMLInputElement;
+            if (check) check.checked = s.textShadow;
+          }
+          
+          // Validate textColor is a valid hex color
+          if (typeof s.textColor === 'string' && /^#[0-9A-Fa-f]{6}$/.test(s.textColor)) {
+            this.textColor = s.textColor;
+            const input = document.getElementById('textColor') as HTMLInputElement;
+            if (input) input.value = s.textColor;
+          }
+          if (typeof s.soundEnabled === 'boolean') {
+            this.soundEnabled = s.soundEnabled;
+            const check = document.getElementById('soundEnabled') as HTMLInputElement;
+            if (check) check.checked = s.soundEnabled;
+          }
+          if (typeof s.confettiEnabled === 'boolean') {
+            this.confettiEnabled = s.confettiEnabled;
+            const check = document.getElementById('confettiEnabled') as HTMLInputElement;
+            if (check) check.checked = s.confettiEnabled;
+          }
+          if (typeof s.flashEnabled === 'boolean') {
+            this.flashEnabled = s.flashEnabled;
+            const check = document.getElementById('flashEnabled') as HTMLInputElement;
+            if (check) check.checked = s.flashEnabled;
+          }
+        }
+        
+        this.drawWheel();
+        this.showNotification('✅ Datos cargados correctamente');
+      } catch (e) {
+        alert('Error al cargar los datos');
+      }
+    }
+    
+    private showNotification(message: string): void {
+      const notification = document.createElement('div');
+      notification.className = 'fixed bottom-4 right-4 bg-gray-800 text-white px-6 py-3 rounded-xl shadow-lg z-50 animate-pulse';
+      notification.textContent = message;
+      document.body.appendChild(notification);
+      
+      setTimeout(() => {
+        notification.remove();
+      }, 3000);
+    }
+    
+    // Fullscreen
+    private toggleFullscreen(): void {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen().catch(() => {
+          alert('No se pudo activar pantalla completa');
+        });
+      } else {
+        document.exitFullscreen();
+      }
+    }
+    
+    // Keyboard shortcuts
+    private handleKeyboardShortcut(e: KeyboardEvent): void {
+      // Don't trigger shortcuts when typing in inputs
+      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) {
+        return;
+      }
+      
+      switch (e.key.toLowerCase()) {
+        case ' ':
+          e.preventDefault();
+          this.handleSpin();
+          break;
+        case 'r':
+          this.handleRandomSelect();
+          break;
+        case 'm':
+          this.shuffleParticipants();
+          break;
+        case 'f':
+          this.toggleFullscreen();
+          break;
+        case 'escape':
+          // Close any open panels
+          document.getElementById('customizationPanel')?.classList.add('hidden');
+          document.getElementById('infoPanel')?.classList.add('hidden');
+          break;
+      }
+    }
+    
+    // Security helpers
+    private escapeHtml(text: string): string {
+      const htmlEscapes: Record<string, string> = {
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#x27;',
+        '/': '&#x2F;',
+        '`': '&#x60;',
+        '=': '&#x3D;'
+      };
+      return text.replace(/[&<>"'`=/]/g, char => htmlEscapes[char] || char);
+    }
+    
+    private sanitizeName(name: string): string {
+      if (typeof name !== 'string') return '';
+      
+      // Normalize unicode to prevent homograph attacks
+      const normalized = name.normalize('NFKC');
+      
+      // Remove control characters and null bytes
+      const cleaned = normalized
+        .replace(/[\x00-\x1F\x7F-\x9F]/g, '')
+        .replace(/[\u200B-\u200D\uFEFF]/g, '') // Zero-width chars
+        .replace(/<[^>]*>/g, '') // Strip HTML tags
+        .replace(/javascript:/gi, '') // Prevent JS injection
+        .replace(/data:/gi, '') // Prevent data URIs
+        .replace(/on\w+=/gi, '') // Prevent event handlers
+        .trim();
+      
+      // Limit length to prevent DoS
+      return cleaned.substring(0, 50);
+    }
+    
+    private sanitizeForAttribute(text: string): string {
+      return this.escapeHtml(this.sanitizeName(text));
+    }
+    
+    private checkParticipantWarnings(): void {
+      const warning = document.getElementById('participantWarning')!;
+      const count = this.participants.length;
+      
+      if (count > 100) {
+        warning.textContent = '⚠️ Muchos participantes - el rendimiento puede verse afectado';
+        warning.classList.remove('hidden');
+      } else if (count > 50) {
+        warning.textContent = '⚠️ Lista grande - considera exportar una copia';
+        warning.classList.remove('hidden');
+      } else {
+        warning.classList.add('hidden');
+      }
+    }
+  }
+
+  // Initialize when DOM is ready
+  document.addEventListener('DOMContentLoaded', () => {
+    new RouletteWheel();
+    
+    // Initialize game mode card styles
+    document.querySelectorAll('.game-mode-card input').forEach(input => {
+      const card = (input as HTMLInputElement).parentElement!.querySelector('div')!;
+      if ((input as HTMLInputElement).checked) {
+        card.classList.add('border-purple-500', 'bg-purple-500/20');
+        card.classList.remove('border-white/30');
+      }
+    });
+    
+    // Speed change listeners - disable troll mode at 1s
+    document.querySelectorAll<HTMLInputElement>('input[name="speed"]').forEach(radio => {
+      radio.addEventListener('change', () => {
+        if (radio.value === '1' && radio.checked) {
+          const trollCheckbox = document.getElementById('trollMode') as HTMLInputElement;
+          if (trollCheckbox) {
+            trollCheckbox.checked = false;
+            trollCheckbox.disabled = true;
+          }
+        } else if (radio.checked) {
+          const trollCheckbox = document.getElementById('trollMode') as HTMLInputElement;
+          if (trollCheckbox) {
+            trollCheckbox.disabled = false;
+          }
+        }
+      });
+    });
+
+    // Provably Fair Verifier for Classic Roulette
+    const verifySeedInputClassic = document.getElementById('verify-seed-input-classic') as HTMLInputElement;
+    const verifySeedBtnClassic = document.getElementById('verify-seed-btn-classic') as HTMLButtonElement;
+    const verifyParticipantsCountClassic = document.getElementById('verify-participants-count-classic') as HTMLInputElement;
+    const verifyResultsClassic = document.getElementById('verify-results-classic') as HTMLDivElement;
+
+    function verifySeedClassic() {
+      const seedHex = verifySeedInputClassic.value.trim().toLowerCase();
+      const participantsCount = parseInt(verifyParticipantsCountClassic.value) || 0;
+
+      // Validate seed (should be 32 hex chars = 4 x 8 chars)
+      if (!/^[0-9a-f]{1,32}$/i.test(seedHex)) {
+        verifyResultsClassic.innerHTML = `
+          <div class="text-red-400 text-center py-2">
+            ❌ Semilla inválida. Debe ser hexadecimal (0-9, a-f), máx 32 caracteres.
+          </div>
+        `;
+        return;
+      }
+
+      // Validate participants count
+      if (participantsCount < 2) {
+        verifyResultsClassic.innerHTML = `
+          <div class="text-red-400 text-center py-2">
+            ❌ Introduce al menos 2 participantes.
+          </div>
+        `;
+        return;
+      }
+
+      // Parse the seed into 4 Uint32 values (padded)
+      const seedPadded = seedHex.padStart(32, '0');
+      const seeds = [
+        parseInt(seedPadded.slice(0, 8), 16),
+        parseInt(seedPadded.slice(8, 16), 16),
+        parseInt(seedPadded.slice(16, 24), 16),
+        parseInt(seedPadded.slice(24, 32), 16)
+      ];
+      
+      // XOR all seeds
+      const xorValue = seeds[0] ^ seeds[1] ^ seeds[2] ^ seeds[3];
+      const randomValue = xorValue / 0xFFFFFFFF;
+      
+      // Calculate spins and rotation (matching the actual spin logic)
+      const minSpins = 15;
+      const maxSpins = 25;
+      const spins = minSpins + randomValue * (maxSpins - minSpins);
+      const totalRotation = spins * 360; // in degrees
+      
+      // Final angle (pointer is at top, 270 degrees in math coords)
+      const finalAngle = totalRotation % 360;
+      
+      // Calculate winner index
+      const sliceAngle = 360 / participantsCount;
+      // Adjust for pointer position (top = 270° in canvas coords)
+      const adjustedAngle = (270 - finalAngle + 360) % 360;
+      const winnerIndex = Math.floor(adjustedAngle / sliceAngle) % participantsCount;
+
+      // Display results
+      verifyResultsClassic.innerHTML = `
+        <div class="space-y-2">
+          <div class="flex justify-between border-b border-gray-700 pb-1">
+            <span class="text-gray-400">Semilla:</span>
+            <span class="text-green-400 text-xs">${seedPadded}</span>
+          </div>
+          <div class="flex justify-between border-b border-gray-700 pb-1">
+            <span class="text-gray-400">XOR combinado:</span>
+            <span class="text-blue-400">${xorValue.toLocaleString()}</span>
+          </div>
+          <div class="flex justify-between border-b border-gray-700 pb-1">
+            <span class="text-gray-400">Valor normalizado:</span>
+            <span class="text-blue-400">${randomValue.toFixed(10)}</span>
+          </div>
+          <div class="flex justify-between border-b border-gray-700 pb-1">
+            <span class="text-gray-400">Vueltas:</span>
+            <span class="text-white">${spins.toFixed(2)}</span>
+          </div>
+          <div class="flex justify-between border-b border-gray-700 pb-1">
+            <span class="text-gray-400">Ángulo final:</span>
+            <span class="text-white">${finalAngle.toFixed(2)}°</span>
+          </div>
+          <div class="flex justify-between border-b border-gray-700 pb-1">
+            <span class="text-gray-400">Participantes:</span>
+            <span class="text-white">${participantsCount}</span>
+          </div>
+          <div class="mt-3 p-3 rounded-lg bg-purple-900/50 border border-purple-600">
+            <div class="text-center">
+              <div class="text-xs text-gray-400 mb-1">GANADOR</div>
+              <div class="text-xl font-bold text-purple-400">
+                Participante #${winnerIndex + 1}
+              </div>
+              <div class="text-sm mt-1 text-gray-400">
+                Posición ${winnerIndex + 1} de ${participantsCount}
+              </div>
+            </div>
+          </div>
+          <div class="text-xs text-gray-500 text-center mt-2">
+            Ángulo/slice = ${adjustedAngle.toFixed(2)}° / ${sliceAngle.toFixed(2)}° = índice ${winnerIndex}
+          </div>
+        </div>
+      `;
+    }
+
+    verifySeedBtnClassic.addEventListener('click', verifySeedClassic);
+    verifySeedInputClassic.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') verifySeedClassic();
+    });
+  });
+</script>
+
+<style>
+  #participantsList span {
+    transition: all 0.15s ease-out;
+  }
+  
+  @keyframes flash {
+    0% { opacity: 0.8; }
+    100% { opacity: 0; }
+  }
+  
+  @keyframes confetti-fall {
+    0% {
+      transform: translateY(0) rotate(0deg);
+      opacity: 1;
+    }
+    100% {
+      transform: translateY(600px) rotate(720deg);
+      opacity: 0;
+    }
+  }
+  
+  @keyframes snowfall {
+    0% {
+      transform: translateY(0) translateX(0) rotate(0deg);
+      opacity: 1;
+    }
+    25% {
+      transform: translateY(25vh) translateX(20px) rotate(90deg);
+    }
+    50% {
+      transform: translateY(50vh) translateX(-20px) rotate(180deg);
+    }
+    75% {
+      transform: translateY(75vh) translateX(15px) rotate(270deg);
+    }
+    100% {
+      transform: translateY(105vh) translateX(-10px) rotate(360deg);
+      opacity: 0.3;
+    }
+  }
+  
+  .snowflake {
+    filter: drop-shadow(0 0 3px rgba(255, 255, 255, 0.8));
+  }
+  
+  /* Christmas glow effect */
+  #christmasDecorations > div {
+    filter: drop-shadow(0 0 10px rgba(255, 215, 0, 0.5));
+  }
+</style>
